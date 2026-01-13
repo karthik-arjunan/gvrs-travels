@@ -1,0 +1,244 @@
+/* =========================
+   PAGE
+========================= */
+.booking-page {
+  padding: 16px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* =========================
+   CARD
+========================= */
+.booking-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+}
+
+/* =========================
+   FORM
+========================= */
+.booking-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+/* =========================
+   FORM GROUP
+========================= */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1f2937;
+}
+
+.form-group input {
+  height: 44px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+.form-actions {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn.save {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 768px) {
+  .booking-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* =========================
+   VEHICLE DROPDOWN (PREMIUM)
+========================= */
+.vehicle-icon {
+  font-size: 16px;
+  color: #2563eb;
+}
+
+.vehicle-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.vehicle-select {
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+
+  /* PREMIUM BORDER */
+  border: 1.5px solid transparent;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #bfdbfe, #93c5fd) border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+  transition: all 0.25s ease;
+}
+
+.vehicle-select:hover {
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #93c5fd, #60a5fa) border-box;
+}
+
+.vehicle-select:focus-within {
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #2563eb, #1e40af) border-box;
+
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18),
+    0 10px 26px rgba(37, 99, 235, 0.25);
+}
+
+.vehicle-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.placeholder {
+  color: #94a3b8;
+}
+
+.arrow {
+  font-size: 14px;
+  color: #2563eb;
+}
+
+/* =========================
+   OPTIONS (OVERLAY)
+========================= */
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================
+   VEHICLE OPTION – PREMIUM PARTIAL LINE
+========================= */
+.vehicle-option {
+  position: relative;
+  padding: 12px 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+/* PARTIAL UNDERLINE */
+.vehicle-option::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  bottom: 0;
+
+  width: 60%; /* ✅ NOT FULL WIDTH */
+  height: 1.5px;
+
+  background: linear-gradient(90deg, #fde68a, rgba(253, 230, 138, 0));
+
+  opacity: 0.6;
+}
+
+/* REMOVE LINE FOR LAST ITEM */
+.vehicle-option:last-child::after {
+  display: none;
+}
+
+/* HOVER EFFECT */
+.vehicle-option:hover {
+  background: linear-gradient(90deg, #eef6ff, #ffffff);
+}
+
+/* ICON */
+.vehicle-option .vehicle-icon {
+  color: #2563eb;
+}
+
+/* ICON ON HOVER */
+.vehicle-option:hover .vehicle-icon {
+  color: #2563eb;
+}
+
+/* 3-column row inside booking form */
+.form-row-3 {
+  grid-column: span 2; /* takes full width of parent grid */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 768px) {
+  .form-row-3 {
+    grid-template-columns: 1fr;
+  }
+}
