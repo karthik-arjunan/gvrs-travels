@@ -5,6 +5,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import ProtectedRoute from "./layouts/ProtectedRoute";
 import DriverDetails from "./pages/Drivers/DriverDetails";
 import Bookings from "./pages/Bookings/Bookings";
+import BookingsList from "./pages/BookingsList/BookingsList";
 function App() {
   return (
     <Routes>
@@ -13,8 +14,8 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/driver-details" element={<DriverDetails />} />
-          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/driverdetails" element={<DriverDetails />} />
+          <Route path="/bookingsList" element={<BookingsList />} />
         </Route>
       </Route>
 

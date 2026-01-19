@@ -19,7 +19,7 @@ const Sidebar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/bookings" className="nav-link">
+          <NavLink to="/bookingsList" className="nav-link">
             <FaClipboardList /> <span>Bookings</span>
           </NavLink>
         </li>
@@ -29,7 +29,7 @@ const Sidebar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/driver-details" className="nav-link">
+          <NavLink to="/driverdetails" className="nav-link">
             <FaUserTie /> <span>Drivers</span>
           </NavLink>
         </li>

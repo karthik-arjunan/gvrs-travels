@@ -1,0 +1,284 @@
+import React, { useState, useMemo, useEffect } from "react";
+import "./BookingsList.css";
+import Bookings from "../Bookings/Bookings";
+import {
+  FaPlaneDeparture,
+  FaCheckCircle,
+  FaClock,
+  FaTimesCircle,
+  FaPlus,
+} from "react-icons/fa";
+
+/* =========================
+   SUMMARY DATA
+========================= */
+const summary = [
+  {
+    label: "Total Trips",
+    count: 15,
+    icon: <FaPlaneDeparture />,
+    type: "total",
+  },
+  { label: "Confirmed", count: 8, icon: <FaCheckCircle />, type: "confirmed" },
+  { label: "Pending", count: 4, icon: <FaClock />, type: "pending" },
+  { label: "Cancelled", count: 3, icon: <FaTimesCircle />, type: "cancelled" },
+];
+
+/* =========================
+   BOOKINGS DATA
+========================= */
+const bookings = [
+  {
+    id: "GVRS-2026-001",
+    place: "Chennai",
+    country: "Trichy",
+    type: "Car",
+    guests: 2,
+    date: "Feb 15 – Feb 22, 2026",
+    price: 2450,
+    status: "confirmed",
+  },
+  {
+    id: "GVRS-2026-002",
+    place: "Madurai",
+    country: "Chennai",
+    type: "Car",
+    guests: 5,
+    date: "Mar 10 – Mar 15, 2026",
+    price: 1890,
+    status: "pending",
+  },
+  {
+    id: "GVRS-2026-003",
+    place: "Trichy",
+    country: "Chennai",
+    type: "Van",
+    guests: 11,
+    date: "Apr 1 – Apr 8, 2026",
+    price: 1650,
+    status: "confirmed",
+  },
+  {
+    id: "GVRS-2026-004",
+    place: "Salem",
+    country: "Trichy",
+    type: "Car",
+    guests: 3,
+    date: "May 12 – May 18, 2026",
+    price: 2100,
+    status: "cancelled",
+  },
+  {
+    id: "GVRS-2026-005",
+    place: "Trichy",
+    country: "Thanjavur",
+    type: "Car",
+    guests: 3,
+    date: "May 12 – May 18, 2026",
+    price: 2100,
+    status: "completed",
+  },
+  {
+    id: "GVRS-2026-006",
+    place: "Trichy",
+    country: "Coimbatore",
+    type: "Car",
+    guests: 3,
+    date: "May 12 – May 18, 2026",
+    price: 2100,
+    status: "completed",
+  },
+  {
+    id: "GVRS-2026-007",
+    place: "Trichy",
+    country: "Coimbatore",
+    type: "Car",
+    guests: 3,
+    date: "May 12 – May 18, 2026",
+    price: 2100,
+    status: "completed",
+  },
+];
+
+const ITEMS_PER_PAGE = 6;
+
+const BookingsList = () => {
+  const [activeTab, setActiveTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  /* =========================
+     FILTER BOOKINGS
+  ========================= */
+  const filteredBookings = useMemo(() => {
+    return activeTab === "all"
+      ? bookings
+      : bookings.filter((b) => b.status === activeTab);
+  }, [activeTab]);
+
+  /* RESET PAGE ON TAB CHANGE */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
+  /* =========================
+     PAGINATION LOGIC
+  ========================= */
+  const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
+
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  return (
+    <div className="booking-page">
+      {/* =========================
+         HEADER ROW
+      ========================= */}
+      <div className="booking-header-row">
+        <h1 className="page-title">My Bookings</h1>
+
+        <button
+          className="add-booking-btn"
+          onClick={() => setShowCreateModal(true)}
+        >
+          <FaPlus />
+          Add Booking
+        </button>
+      </div>
+
+      {/* =========================
+          SUMMARY CARDS
+      ========================= */}
+      <div className="summary-grid">
+        {summary.map((item, i) => (
+          <div key={i} className={`summary-card ${item.type}`}>
+            <div className="summary-icon">{item.icon}</div>
+            <div className="summary-info">
+              <h2>{item.count}</h2>
+              <p>{item.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-divider" />
+
+      {/* =========================
+          TABS
+      ========================= */}
+      <div className="booking-tabs">
+        {["all", "confirmed", "pending", "cancelled"].map((tab) => (
+          <button
+            key={tab}
+            className={`tab-btn ${activeTab === tab ? "active" : ""}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* =========================
+          BOOKINGS GRID
+      ========================= */}
+      <div className="booking-list">
+        {paginatedBookings.length === 0 ? (
+          <p className="empty-text">No bookings found</p>
+        ) : (
+          paginatedBookings.map((booking) => (
+            <div key={booking.id} className="bookings-card">
+              <span className={`booking-status ${booking.status}`}>
+                {booking.status}
+              </span>
+
+              <h3 className="booking-title">
+                {booking.place} <span className="route-arrow">→</span>{" "}
+                {booking.country}
+              </h3>
+
+              <div className="booking-info">
+                <div>
+                  <span className="label">Vehicle Type</span>
+                  <span className="value">{booking.type}</span>
+                </div>
+                <div>
+                  <span className="label">Guests</span>
+                  <span className="value">{booking.guests}</span>
+                </div>
+              </div>
+
+              <div className="booking-date">📅 {booking.date}</div>
+
+              <div className="booking-footer">
+                <div>
+                  <span className="label">Booking ID</span>
+                  <span className="value">{booking.id}</span>
+                </div>
+                <div className="price">₹{booking.price}</div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* =========================
+         PAGINATION
+      ========================= */}
+      {totalPages > 1 && (
+        <div className="pagination-wrapper">
+          <p className="pagination-info">
+            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–
+            {Math.min(currentPage * ITEMS_PER_PAGE, filteredBookings.length)} of{" "}
+            {filteredBookings.length} bookings
+          </p>
+
+          <div className="pagination">
+            <button
+              className="page-btn nav"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+            >
+              ‹ Previous
+            </button>
+
+            {[...Array(totalPages)].map((_, i) => {
+              const page = i + 1;
+              return (
+                <button
+                  key={page}
+                  className={`page-btn ${currentPage === page ? "active" : ""}`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            <button
+              className="page-btn nav"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+            >
+              Next ›
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =========================
+         CREATE BOOKING MODAL
+      ========================= */}
+      {showCreateModal && (
+        <div className="booking-modal-overlay">
+          <div className="booking-modal">
+            <Bookings onClose={() => setShowCreateModal(false)} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default BookingsList;
