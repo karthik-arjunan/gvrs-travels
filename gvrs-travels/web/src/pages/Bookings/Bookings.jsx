@@ -33,17 +33,17 @@ const Bookings = () => {
   };
 
   const handleCreateBooking = () => {
-    if (
-      !customerName ||
-      !customerPhone ||
-      !pickup ||
-      !drop ||
-      !driverName ||
-      !driverPhone
-    ) {
-      alert("Please fill all required fields");
-      return;
-    }
+    // if (
+    //   !customerName ||
+    //   !customerPhone ||
+    //   !pickup ||
+    //   !drop ||
+    //   !driverName ||
+    //   !driverPhone
+    // ) {
+    //   alert("Please fill all required fields");
+    //   return;
+    // }
 
     const bookingId = generateBookingId();
 
