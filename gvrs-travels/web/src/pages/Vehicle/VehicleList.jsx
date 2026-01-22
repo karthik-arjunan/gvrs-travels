@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import "./VehicleList.css";
 import { FaCar, FaShuttleVan, FaWhatsapp, FaEdit } from "react-icons/fa";
-
+import AddVehicleModal from "../AddVehicle/AddVehicleModal"
 const VehiclesList = () => {
   const vehicles = [
     {
@@ -32,12 +32,15 @@ const VehiclesList = () => {
       status: "maintenance",
     },
   ];
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="vehicle-page">
       <div className="vehicle-header">
         <h1>Vehicles</h1>
-        <button className="add-vehicle-btn">+ Add Vehicle</button>
+        <button className="add-vehicle-btn" onClick={() => setShowModal(true)}>
+          + Add Vehicle
+        </button>
       </div>
 
       <div className="vehicle-grid">
@@ -78,6 +81,12 @@ const VehiclesList = () => {
           </div>
         ))}
       </div>
+      {showModal && (
+        <AddVehicleModal
+          onClose={() => setShowModal(false)}
+          onSave={(data) => console.log("New Vehicle:", data)}
+        />
+      )}
     </div>
   );
 };

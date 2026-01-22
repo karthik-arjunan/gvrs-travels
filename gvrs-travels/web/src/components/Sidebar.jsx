@@ -33,7 +33,7 @@ const Sidebar = () => {
             <FaUserTie /> <span>Drivers</span>
           </NavLink>
         </li>
-        <li>
+        {/* <li>
           <NavLink to="/reports" className="nav-link">
             <FaChartBar /> <span>Reports</span>
           </NavLink>
@@ -42,7 +42,7 @@ const Sidebar = () => {
           <NavLink to="/settings" className="nav-link">
             <FaCog /> <span>Settings</span>
           </NavLink>
-        </li>
+        </li> */}
       </ul>
     </aside>
   );

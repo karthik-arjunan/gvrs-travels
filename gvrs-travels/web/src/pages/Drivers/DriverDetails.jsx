@@ -4,7 +4,7 @@ import driverImg from "../../assets/driver.png";
 import { FaPhoneVolume } from "react-icons/fa6";
 import { FaEye, FaPlus } from "react-icons/fa";
 
-const DriverDetails = () => {
+const DriverDetails = ({onClose}) => {
   /* =========================
      STATE
   ========================= */
@@ -28,32 +28,32 @@ const DriverDetails = () => {
       photo: null,
     },
     {
-    id: 3,
-    licenseNo: "TN1289834678",
-    name: "Arun Prasad",
-    dob: "11/11/1993",
-    address: "Velachery, Chennai",
-    status: "available",
-    photo: null,
-  },
-  {
-    id: 4,
-    licenseNo: "TN4567123890",
-    name: "Karthik",
-    dob: "05/06/1990",
-    address: "Tambaram, Chennai",
-    status: "booked",
-    photo: null,
-  },
-  {
-    id: 5,
-    licenseNo: "TN9988776655",
-    name: "Vijay",
-    dob: "09/02/1998",
-    address: "Porur, Chennai",
-    status: "available",
-    photo: null,
-  },
+      id: 3,
+      licenseNo: "TN1289834678",
+      name: "Arun Prasad",
+      dob: "11/11/1993",
+      address: "Velachery, Chennai",
+      status: "available",
+      photo: null,
+    },
+    {
+      id: 4,
+      licenseNo: "TN4567123890",
+      name: "Karthik",
+      dob: "05/06/1990",
+      address: "Tambaram, Chennai",
+      status: "booked",
+      photo: null,
+    },
+    {
+      id: 5,
+      licenseNo: "TN9988776655",
+      name: "Vijay",
+      dob: "09/02/1998",
+      address: "Porur, Chennai",
+      status: "available",
+      photo: null,
+    },
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -128,11 +128,13 @@ const DriverDetails = () => {
 
   return (
     <div className="driver-page">
-
       {/* PAGE HEADER */}
       <div className="driver-page-header">
         <h1 className="page-title">Driver Details</h1>
-        <button className="add-driver-btn" onClick={() => setShowAddModal(true)}>
+        <button
+          className="add-driver-btn"
+          onClick={() => setShowAddModal(true)}
+        >
           <FaPlus className="add-icon" />
           Add Driver
         </button>
@@ -155,9 +157,15 @@ const DriverDetails = () => {
 
               <div className="licence-details">
                 <p className="licence-number">{d.licenseNo}</p>
-                <p><strong>Name:</strong> {d.name}</p>
-                <p><strong>DOB:</strong> {d.dob}</p>
-                <p><strong>Address:</strong> {d.address}</p>
+                <p>
+                  <strong>Name:</strong> {d.name}
+                </p>
+                <p>
+                  <strong>DOB:</strong> {d.dob}
+                </p>
+                <p>
+                  <strong>Address:</strong> {d.address}
+                </p>
 
                 <p className="driver-phone">
                   <FaPhoneVolume className="phone-icon" />
@@ -200,7 +208,10 @@ const DriverDetails = () => {
             </div>
 
             <div className="modal-actions">
-              <button className="btn cancel" onClick={() => setShowModal(false)}>
+              <button
+                className="btn cancel"
+                onClick={() => setShowModal(false)}
+              >
                 Close
               </button>
             </div>
@@ -212,20 +223,30 @@ const DriverDetails = () => {
       {showAddModal && (
         <div className="driver-modal-overlay">
           <div className="driver-modal">
-            <div className="driver-modal-header">
+            <div className="modal-header">
               <h3>Add Driver</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowAddModal(false)}
+              >
+                ✕
+              </button>
             </div>
 
             <div className="driver-modal-body">
               <div className="form-group">
                 <label>Driver Photo</label>
-                <input type="file" accept="image/*" onChange={handlePhotoChange} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                />
                 {newDriver.photoPreview && (
                   <img
-                        src={newDriver.photoPreview}
-                        alt="Preview"
-                        className="driver-photo-preview"
-                    />
+                    src={newDriver.photoPreview}
+                    alt="Preview"
+                    className="driver-photo-preview"
+                  />
                 )}
               </div>
 
@@ -271,17 +292,14 @@ const DriverDetails = () => {
               <div className="form-group">
                 <label>Contact Number</label>
                 <input
-                type="text"
-                placeholder="Enter contact number"
-                defaultValue={selectedDriver?.emergencyContact || ""}
-                />
-                </div>
-                <div className="form-group">
-                <label>Father / Spouse Name</label>
-                <input
                   type="text"
-                  placeholder="Enter father or spouse name"
+                  placeholder="Enter contact number"
+                  defaultValue={selectedDriver?.emergencyContact || ""}
                 />
+              </div>
+              <div className="form-group">
+                <label>Father / Spouse Name</label>
+                <input type="text" placeholder="Enter father or spouse name" />
               </div>
 
               <div className="form-group">
@@ -293,7 +311,10 @@ const DriverDetails = () => {
               </div>
 
               <div className="modal-actions">
-                <button className="btn cancel" onClick={() => setShowAddModal(false)}>
+                <button
+                  className="btn cancel"
+                  onClick={() => setShowAddModal(false)}
+                >
                   Cancel
                 </button>
                 <button className="btn save" onClick={handleSaveDriver}>
@@ -304,7 +325,6 @@ const DriverDetails = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
