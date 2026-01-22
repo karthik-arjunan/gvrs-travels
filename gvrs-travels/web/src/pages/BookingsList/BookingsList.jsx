@@ -7,7 +7,10 @@ import {
   FaClock,
   FaTimesCircle,
   FaPlus,
+  FaWhatsapp,
 } from "react-icons/fa";
+import { MdEdit } from "react-icons/md";
+
 
 /* =========================
    SUMMARY DATA
@@ -33,7 +36,7 @@ const bookings = [
     place: "Chennai",
     country: "Trichy",
     type: "Car",
-    guests: 2,
+    time: "11.00AM",
     date: "Feb 15 – Feb 22, 2026",
     price: 2450,
     status: "confirmed",
@@ -43,7 +46,7 @@ const bookings = [
     place: "Madurai",
     country: "Chennai",
     type: "Car",
-    guests: 5,
+    time: "11.00AM",
     date: "Mar 10 – Mar 15, 2026",
     price: 1890,
     status: "pending",
@@ -53,7 +56,7 @@ const bookings = [
     place: "Trichy",
     country: "Chennai",
     type: "Van",
-    guests: 11,
+    time: "10.00AM",
     date: "Apr 1 – Apr 8, 2026",
     price: 1650,
     status: "confirmed",
@@ -63,7 +66,7 @@ const bookings = [
     place: "Salem",
     country: "Trichy",
     type: "Car",
-    guests: 3,
+    time: "8.00AM",
     date: "May 12 – May 18, 2026",
     price: 2100,
     status: "cancelled",
@@ -73,7 +76,7 @@ const bookings = [
     place: "Trichy",
     country: "Thanjavur",
     type: "Car",
-    guests: 3,
+    time: "5.00AM",
     date: "May 12 – May 18, 2026",
     price: 2100,
     status: "completed",
@@ -83,17 +86,7 @@ const bookings = [
     place: "Trichy",
     country: "Coimbatore",
     type: "Car",
-    guests: 3,
-    date: "May 12 – May 18, 2026",
-    price: 2100,
-    status: "completed",
-  },
-  {
-    id: "GVRS-2026-007",
-    place: "Trichy",
-    country: "Coimbatore",
-    type: "Car",
-    guests: 3,
+    time: "11.00PM",
     date: "May 12 – May 18, 2026",
     price: 2100,
     status: "completed",
@@ -105,25 +98,17 @@ const ITEMS_PER_PAGE = 6;
 const BookingsList = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingBooking, setEditingBooking] = useState(null);
 
-  /* =========================
-     FILTER BOOKINGS
-  ========================= */
   const filteredBookings = useMemo(() => {
     return activeTab === "all"
       ? bookings
       : bookings.filter((b) => b.status === activeTab);
   }, [activeTab]);
 
-  /* RESET PAGE ON TAB CHANGE */
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
+  useEffect(() => setCurrentPage(1), [activeTab]);
 
-  /* =========================
-     PAGINATION LOGIC
-  ========================= */
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
 
   const paginatedBookings = filteredBookings.slice(
@@ -131,31 +116,56 @@ const BookingsList = () => {
     currentPage * ITEMS_PER_PAGE,
   );
 
+  /* =========================
+     WHATSAPP MESSAGE
+  ========================= */
+  const sendWhatsAppToDriver = (driverPhone, booking) => {
+    if (!driverPhone) return;
+
+    const message = `
+🚘 *Trip Confirmed – GVRS Travels*
+
+📘 Booking ID: ${booking.id}
+📍 Route: ${booking.place} → ${booking.country}
+📅 Date: ${booking.date}
+⏰ Time: ${booking.time}
+
+Please be on time.
+— *GVRS Travels*
+`;
+
+    window.open(
+      `https://wa.me/91${driverPhone}?text=${encodeURIComponent(message)}`,
+      "_blank",
+    );
+  };
+
+  const openCreate = () => {
+    setEditingBooking(null);
+    setShowModal(true);
+  };
+
+  const openEdit = (booking) => {
+    setEditingBooking(booking);
+    setShowModal(true);
+  };
+
   return (
     <div className="booking-page">
-      {/* =========================
-         HEADER ROW
-      ========================= */}
+      {/* HEADER */}
       <div className="booking-header-row">
         <h1 className="page-title">My Bookings</h1>
-
-        <button
-          className="add-booking-btn"
-          onClick={() => setShowCreateModal(true)}
-        >
-          <FaPlus />
-          Add Booking
+        <button className="add-booking-btn" onClick={openCreate}>
+          <FaPlus /> Add Booking
         </button>
       </div>
 
-      {/* =========================
-          SUMMARY CARDS
-      ========================= */}
+      {/* SUMMARY */}
       <div className="summary-grid">
         {summary.map((item, i) => (
           <div key={i} className={`summary-card ${item.type}`}>
             <div className="summary-icon">{item.icon}</div>
-            <div className="summary-info">
+            <div>
               <h2>{item.count}</h2>
               <p>{item.label}</p>
             </div>
@@ -165,9 +175,7 @@ const BookingsList = () => {
 
       <div className="section-divider" />
 
-      {/* =========================
-          TABS
-      ========================= */}
+      {/* TABS */}
       <div className="booking-tabs">
         {["all", "confirmed", "pending", "cancelled"].map((tab) => (
           <button
@@ -180,100 +188,83 @@ const BookingsList = () => {
         ))}
       </div>
 
-      {/* =========================
-          BOOKINGS GRID
-      ========================= */}
+      {/* BOOKINGS GRID */}
       <div className="booking-list">
-        {paginatedBookings.length === 0 ? (
-          <p className="empty-text">No bookings found</p>
-        ) : (
-          paginatedBookings.map((booking) => (
-            <div key={booking.id} className="bookings-card">
+        {paginatedBookings.map((booking) => (
+          <div
+            key={booking.id}
+            className={`bookings-card ${
+              ["confirmed", "pending"].includes(booking.status)
+                ? "has-whatsapp"
+                : ""
+            }`}
+          >
+            {/* STATUS + EDIT */}
+            <div className="booking-actions">
               <span className={`booking-status ${booking.status}`}>
                 {booking.status}
               </span>
 
-              <h3 className="booking-title">
-                {booking.place} <span className="route-arrow">→</span>{" "}
-                {booking.country}
-              </h3>
+              {["confirmed", "pending"].includes(booking.status) && (
+                <button
+                  className="edit-booking-btn"
+                  title="Edit Booking"
+                  onClick={() => openEdit(booking)}
+                >
+                  <MdEdit />
+                </button>
+              )}
+            </div>
 
-              <div className="booking-info">
-                <div>
-                  <span className="label">Vehicle Type</span>
-                  <span className="value">{booking.type}</span>
-                </div>
-                <div>
-                  <span className="label">Guests</span>
-                  <span className="value">{booking.guests}</span>
-                </div>
+            {/* WHATSAPP */}
+            {["confirmed", "pending"].includes(booking.status) && (
+              <button
+                className="whatsapp-pill"
+                title="Send WhatsApp to Driver"
+                onClick={() =>
+                  sendWhatsAppToDriver(booking.driverPhone, booking)
+                }
+              >
+                <FaWhatsapp />
+              </button>
+            )}
+
+            <h3 className="booking-title">
+              {booking.place} → {booking.country}
+            </h3>
+
+            <div className="booking-info">
+              <div>
+                <span className="label">Vehicle</span>
+                <span className="value">{booking.type}</span>
               </div>
-
-              <div className="booking-date">📅 {booking.date}</div>
-
-              <div className="booking-footer">
-                <div>
-                  <span className="label">Booking ID</span>
-                  <span className="value">{booking.id}</span>
-                </div>
-                <div className="price">₹{booking.price}</div>
+              <div>
+                <span className="label">Time</span>
+                <span className="value">{booking.time}</span>
               </div>
             </div>
-          ))
-        )}
+
+            <div className="booking-date">📅 {booking.date}</div>
+
+            <div className="booking-footer">
+              <div>
+                <span className="label">Booking ID</span>
+                <span className="value">{booking.id}</span>
+              </div>
+              <div className="price">₹{booking.price}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* =========================
-         PAGINATION
-      ========================= */}
-      {totalPages > 1 && (
-        <div className="pagination-wrapper">
-          <p className="pagination-info">
-            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–
-            {Math.min(currentPage * ITEMS_PER_PAGE, filteredBookings.length)} of{" "}
-            {filteredBookings.length} bookings
-          </p>
-
-          <div className="pagination">
-            <button
-              className="page-btn nav"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-            >
-              ‹ Previous
-            </button>
-
-            {[...Array(totalPages)].map((_, i) => {
-              const page = i + 1;
-              return (
-                <button
-                  key={page}
-                  className={`page-btn ${currentPage === page ? "active" : ""}`}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              );
-            })}
-
-            <button
-              className="page-btn nav"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
-            >
-              Next ›
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* =========================
-         CREATE BOOKING MODAL
-      ========================= */}
-      {showCreateModal && (
+      {/* MODAL */}
+      {showModal && (
         <div className="booking-modal-overlay">
           <div className="booking-modal">
-            <Bookings onClose={() => setShowCreateModal(false)} />
+            <Bookings
+              onClose={() => setShowModal(false)}
+              editingBooking={editingBooking}
+            />
           </div>
         </div>
       )}

@@ -248,28 +248,6 @@
   margin-bottom: 14px;
 }
 
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-}
-
 /* ACTIONS */
 .modal-actions {
   display: flex;

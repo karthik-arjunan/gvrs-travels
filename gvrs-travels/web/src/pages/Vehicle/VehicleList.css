@@ -1,0 +1,129 @@
+.vehicle-page {
+  padding: 24px;
+}
+
+.vehicle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.vehicle-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.add-vehicle-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+}
+
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.vehicle-card {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.08);
+  transition: .25s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0,0,0,.12);
+}
+
+.vehicle-status {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vehicle-status.available {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.vehicle-status.on-trip {
+  background: #fff7ed;
+  color: #f97316;
+}
+
+.vehicle-status.maintenance {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.vehicle-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.vehicle-info {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vehicle-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.whatsapp-btn {
+  background: #25d366;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(37,211,102,.45);
+}
+
+.edit-btn {
+  background: #2563eb;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(37,99,235,.45);
+}

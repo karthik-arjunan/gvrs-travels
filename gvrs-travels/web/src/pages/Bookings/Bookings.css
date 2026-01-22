@@ -26,34 +26,6 @@
   gap: 22px;
 }
 
-/* =========================
-   FORM GROUP
-========================= */
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #1f2937;
-}
-
-.form-group input {
-  height: 44px;
-  padding: 10px 14px;
-  font-size: 14px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
 
 /* =========================
    ACTION BUTTONS
@@ -241,4 +213,59 @@
   .form-row-3 {
     grid-template-columns: 1fr;
   }
+}
+
+.form-group input[type="datetime-local"] {
+  height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.form-group input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.booking-status.completed {
+  background: #eff6ff;   /* light blue */
+  color: #2563eb;        /* blue-600 */
+}
+
+.amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db; /* only wrapper border */
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #fff;
+}
+
+
+.currency {
+  font-weight: 600;
+  color: #374151;
+  margin-right: 6px;
+}
+
+.amount-input {
+  border: none !important;
+  outline: none;
+  padding: 10px 6px;
+  width: 100%;
+  font-size: 14px;
+  background: transparent;
+}
+
+.amount-input-wrapper:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.amount-input:focus {
+  box-shadow: none !important;
+  outline: none;
 }

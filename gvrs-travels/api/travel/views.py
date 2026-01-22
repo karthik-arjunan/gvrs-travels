@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import LoginSerializer
 from datetime import datetime
-from .utils.booking_id import generate_booking_id
 @api_view(['POST'])
 def login_view(request):
     serializer = LoginSerializer(data=request.data)
@@ -19,9 +18,7 @@ def login_view(request):
 def create_booking(request):
     data = request.data
 
-    booking_id = generate_booking_id()
 
     return Response({
         "success": True,
-        "bookingId": booking_id
     })

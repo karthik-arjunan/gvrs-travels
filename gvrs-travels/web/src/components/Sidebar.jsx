@@ -24,7 +24,7 @@ const Sidebar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/vehicles" className="nav-link">
+          <NavLink to="/vehiclesList" className="nav-link">
             <FaCar /> <span>Vehicles</span>
           </NavLink>
         </li>
