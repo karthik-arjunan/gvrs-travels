@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -9,21 +11,34 @@ import BookingsList from "./pages/BookingsList/BookingsList";
 import VehiclesList from "./pages/Vehicle/VehicleList";
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
+    <>
+      {/* 🔥 Toast Container - Global */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/driverdetails" element={<DriverDetails />} />
-          <Route path="/bookingsList" element={<BookingsList />} />
-          <Route path="/vehiclesList" element={<VehiclesList />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/driverdetails" element={<DriverDetails />} />
+            <Route path="/bookingsList" element={<BookingsList />} />
+            <Route path="/vehiclesList" element={<VehiclesList />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* DEFAULT */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        {/* DEFAULT */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </>
   );
 }
 

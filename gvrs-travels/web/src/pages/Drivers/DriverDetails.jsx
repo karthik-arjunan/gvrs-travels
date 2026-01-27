@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./DriverDetails.css";
 import driverImg from "../../assets/driver.png";
 import { FaPhoneVolume } from "react-icons/fa6";
-import { FaEye, FaPlus } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
+import { MdEdit } from "react-icons/md";
 
-const DriverDetails = ({onClose}) => {
+const DriverDetails = () => {
   /* =========================
      STATE
   ========================= */
@@ -15,6 +16,7 @@ const DriverDetails = ({onClose}) => {
       name: "Ramesh Kumar",
       dob: "15/09/1997",
       address: "123 MG Road, Chennai",
+      contact: "9876543210",
       status: "available",
       photo: null,
     },
@@ -22,8 +24,9 @@ const DriverDetails = ({onClose}) => {
       id: 2,
       licenseNo: "TN7878798787",
       name: "Suresh Kumar",
-      dob: "20/04/1995",
+      dob: "1995-04-20",
       address: "Anna Nagar, Chennai",
+      contact: "9876543211",
       status: "booked",
       photo: null,
     },
@@ -33,6 +36,7 @@ const DriverDetails = ({onClose}) => {
       name: "Arun Prasad",
       dob: "11/11/1993",
       address: "Velachery, Chennai",
+      contact: "9876543210",
       status: "available",
       photo: null,
     },
@@ -42,6 +46,7 @@ const DriverDetails = ({onClose}) => {
       name: "Karthik",
       dob: "05/06/1990",
       address: "Tambaram, Chennai",
+      contact: "9677504660",
       status: "booked",
       photo: null,
     },
@@ -51,16 +56,16 @@ const DriverDetails = ({onClose}) => {
       name: "Vijay",
       dob: "09/02/1998",
       address: "Porur, Chennai",
+      contact: "9790119105",
       status: "available",
       photo: null,
     },
   ]);
 
-  const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [editingDriver, setEditingDriver] = useState(null);
 
-  const [newDriver, setNewDriver] = useState({
+  const emptyDriver = {
     licenseNo: "",
     name: "",
     dob: "",
@@ -71,7 +76,23 @@ const DriverDetails = ({onClose}) => {
     status: "available",
     photo: null,
     photoPreview: null,
-  });
+  };
+
+  const [newDriver, setNewDriver] = useState(emptyDriver);
+
+  /* =========================
+     PREFILL WHEN EDITING
+  ========================= */
+  useEffect(() => {
+    if (editingDriver) {
+      setNewDriver({
+        ...editingDriver,
+        photoPreview: editingDriver.photo,
+      });
+    } else {
+      setNewDriver(emptyDriver);
+    }
+  }, [editingDriver]);
 
   /* =========================
      HANDLERS
@@ -92,38 +113,30 @@ const DriverDetails = ({onClose}) => {
     }));
   };
 
+  /* =========================
+     SAVE / UPDATE DRIVER
+  ========================= */
   const handleSaveDriver = () => {
     if (!newDriver.licenseNo || !newDriver.name) {
       alert("Please fill required fields");
       return;
     }
 
-    setDrivers((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        licenseNo: newDriver.licenseNo,
-        name: newDriver.name,
-        dob: newDriver.dob,
-        address: newDriver.address,
-        status: "available",
-        photo: newDriver.photoPreview,
-      },
-    ]);
+    if (editingDriver) {
+      // UPDATE EXISTING
+      setDrivers((prev) =>
+        prev.map((d) =>
+          d.id === editingDriver.id ? { ...newDriver, id: d.id } : d,
+        ),
+      );
+    } else {
+      // ADD NEW
+      setDrivers((prev) => [...prev, { ...newDriver, id: Date.now() }]);
+    }
 
     setShowAddModal(false);
-    setNewDriver({
-      licenseNo: "",
-      name: "",
-      dob: "",
-      address: "",
-      contact: "",
-      fatherName: "",
-      emergencyContact: "",
-      status: "available",
-      photo: null,
-      photoPreview: null,
-    });
+    setEditingDriver(null);
+    setNewDriver(emptyDriver);
   };
 
   return (
@@ -131,9 +144,13 @@ const DriverDetails = ({onClose}) => {
       {/* PAGE HEADER */}
       <div className="driver-page-header">
         <h1 className="page-title">Driver Details</h1>
+
         <button
           className="add-driver-btn"
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setEditingDriver(null);
+            setShowAddModal(true);
+          }}
         >
           <FaPlus className="add-icon" />
           Add Driver
@@ -169,71 +186,44 @@ const DriverDetails = ({onClose}) => {
 
                 <p className="driver-phone">
                   <FaPhoneVolume className="phone-icon" />
-                  +91 98765 43210
+                  +91 {d.contact}
                 </p>
               </div>
             </div>
 
+            {/* EDIT ICON */}
             <div
               className="licence-view-icon"
               onClick={() => {
-                setSelectedDriver(d);
-                setShowModal(true);
+                setEditingDriver(d);
+                setShowAddModal(true);
               }}
+              title="Edit Driver"
             >
-              <FaEye />
+              <MdEdit />
             </div>
           </div>
         ))}
       </div>
 
-      {/* EMERGENCY DETAILS MODAL */}
-      {showModal && (
-        <div className="driver-modal-overlay">
-          <div className="driver-modal">
-            <div className="driver-modal-header">
-              <h3>Driver Emergency Details</h3>
-            </div>
-
-            <div className="driver-modal-body">
-              <div className="form-group">
-                <label>Father / Spouse Name</label>
-                <input type="text" placeholder="Enter name" />
-              </div>
-
-              <div className="form-group">
-                <label>Emergency Contact Number</label>
-                <input type="text" placeholder="Enter emergency number" />
-              </div>
-            </div>
-
-            <div className="modal-actions">
-              <button
-                className="btn cancel"
-                onClick={() => setShowModal(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ADD DRIVER MODAL */}
+      {/* ADD / EDIT DRIVER MODAL */}
       {showAddModal && (
-        <div className="driver-modal-overlay">
-          <div className="driver-modal">
+        <div className="modal-overlay">
+          <div className="modal-card">
             <div className="modal-header">
-              <h3>Add Driver</h3>
+              <h3>{editingDriver ? "Edit Driver Details" : "Add Driver"}</h3>
               <button
                 className="modal-close"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditingDriver(null);
+                }}
               >
                 ✕
               </button>
             </div>
 
-            <div className="driver-modal-body">
+            <div className="modal-body">
               <div className="form-group">
                 <label>Driver Photo</label>
                 <input
@@ -255,6 +245,7 @@ const DriverDetails = ({onClose}) => {
                 <input
                   type="text"
                   name="licenseNo"
+                  placeholder="Driver licence number"
                   value={newDriver.licenseNo}
                   onChange={handleAddChange}
                 />
@@ -265,6 +256,7 @@ const DriverDetails = ({onClose}) => {
                 <input
                   type="text"
                   name="name"
+                  placeholder="Driver name"
                   value={newDriver.name}
                   onChange={handleAddChange}
                 />
@@ -285,16 +277,20 @@ const DriverDetails = ({onClose}) => {
                 <textarea
                   name="address"
                   rows="3"
+                  placeholder="Driver address"
                   value={newDriver.address}
                   onChange={handleAddChange}
                 />
               </div>
+
               <div className="form-group">
                 <label>Contact Number</label>
                 <input
                   type="text"
-                  placeholder="Enter contact number"
-                  defaultValue={selectedDriver?.emergencyContact || ""}
+                  name="contact"
+                  placeholder="Driver contact number"
+                  value={newDriver.contact}
+                  onChange={handleAddChange}
                 />
               </div>
               <div className="form-group">
@@ -309,16 +305,19 @@ const DriverDetails = ({onClose}) => {
                   placeholder="Enter emergency contact number"
                 />
               </div>
-
               <div className="modal-actions">
                 <button
                   className="btn cancel"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingDriver(null);
+                  }}
                 >
                   Cancel
                 </button>
+
                 <button className="btn save" onClick={handleSaveDriver}>
-                  Save Driver
+                  {editingDriver ? "Update Driver" : "Save Driver"}
                 </button>
               </div>
             </div>

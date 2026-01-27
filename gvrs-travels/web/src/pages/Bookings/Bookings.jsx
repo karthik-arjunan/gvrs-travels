@@ -156,8 +156,12 @@ const Bookings = ({ onClose }) => {
 
   return (
     <div className="booking-page">
-      <h1 className="page-title">Create Booking</h1>
-
+      <div className="modal-header">
+        <h3>Create Booking</h3>
+        <button className="modal-close" onClick={onClose}>
+          ✕
+        </button>
+      </div>
       <div className="booking-card">
         <div className="booking-form">
           <div className="form-group">
@@ -238,84 +242,67 @@ const Bookings = ({ onClose }) => {
           </div>
           {/* VEHICLE TYPE */}
           {/* LAST ROW – 3 FIELDS */}
-          <div className="form-row-3">
-            {/* Pickup Date & Time */}
+      
             <div className="form-group">
-              <label>Type</label>
-              <div className={`vehicle-dropdown ${open ? "open" : ""}`}>
-                <div className="vehicle-select" onClick={() => setOpen(!open)}>
-                  {vehicleType ? (
-                    <span className="vehicle-selected">
-                      {vehicleType === "car" && (
-                        <>
-                          <FaCar className="vehicle-icon" /> Car
-                        </>
-                      )}
-                      {vehicleType === "van" && (
-                        <>
-                          <FaShuttleVan className="vehicle-icon" /> Van
-                        </>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="placeholder">Select vehicle type</span>
-                  )}
+              <label>Vehicle Type</label>
 
-                  <span className="arrow">▾</span>
-                </div>
+              <div className="vehicle-type-selector">
+                <button
+                  type="button"
+                  className={`type-pill ${vehicleType === "car" ? "active" : ""}`}
+                  onClick={() => setVehicleType("car")}
+                >
+                  <FaCar />
+                  Car
+                </button>
 
-                {open && (
-                  <div className="vehicle-options">
-                    <div
-                      className="vehicle-option"
-                      onClick={() => {
-                        setVehicleType("car");
-                        setOpen(false);
-                      }}
-                    >
-                      <FaCar className="vehicle-icon" />
-                      <span>Car</span>
-                    </div>
+                <button
+                  type="button"
+                  className={`type-pill ${vehicleType === "van" ? "active" : ""}`}
+                  onClick={() => setVehicleType("van")}
+                >
+                  <FaShuttleVan />
+                  Van
+                </button>
 
-                    <div
-                      className="vehicle-option"
-                      onClick={() => {
-                        setVehicleType("van");
-                        setOpen(false);
-                      }}
-                    >
-                      <FaShuttleVan className="vehicle-icon" />
-                      <span>Van</span>
-                    </div>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className={`type-pill ${vehicleType === "bus" ? "active" : ""}`}
+                  onClick={() => setVehicleType("bus")}
+                >
+                  🚌 Bus
+                </button>
               </div>
             </div>
-            <div className="form-group">
-              <label>Vehicle Number</label>
-              <input
-                type="text"
-                value={RegisterNumber}
-                placeholder="Vehicle No."
-                onChange={(e) =>
-                  setRegisterNumber(e.target.value.toUpperCase())
-                }
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Amount</label>
-              <div className="amount-input-wrapper">
-                <span className="currency">₹</span>
+
+            <div className="form-row-2">
+              <div className="form-group">
+                <label>Vehicle Number</label>
                 <input
-                  type="number"
-                  className="form-input amount-input"
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  type="text"
+                  value={RegisterNumber}
+                  placeholder="Vehicle No."
+                  onChange={(e) =>
+                    setRegisterNumber(e.target.value.toUpperCase())
+                  }
                 />
               </div>
+
+              <div className="form-group">
+                <label className="form-label">Amount</label>
+                <div className="amount-input-wrapper">
+                  <span className="currency">₹</span>
+                  <input
+                    type="number"
+                    className="form-input amount-input"
+                    placeholder="0.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
+        
 
           <div className="form-actions">
             <button className="btn cancel" onClick={onClose}>

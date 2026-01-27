@@ -22,7 +22,7 @@
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
 }
 
 .vehicle-grid {
@@ -32,17 +32,34 @@
 }
 
 .vehicle-card {
-  position: relative;
-  background: #fff;
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 12px 28px rgba(0,0,0,.08);
-  transition: .25s ease;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: 0.3s ease;
+}
+
+/* Available - Fresh Green */
+.vehicle-card.available {
+  background: linear-gradient(135deg, #ecfdf3, #f0fdf4);
+  border-left: 6px solid #16a34a;
+}
+
+/* On Trip - Golden Amber */
+.vehicle-card.on-trip {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border-left: 6px solid #f59e0b;
+}
+
+/* Maintenance - Soft Rose Red */
+.vehicle-card.maintenance {
+  background: linear-gradient(135deg, #fef2f2, #ffe4e6);
+  border-left: 6px solid #dc2626;
 }
 
 .vehicle-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 18px 40px rgba(0,0,0,.12);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 }
 
 .vehicle-status {
@@ -56,27 +73,90 @@
 }
 
 .vehicle-status.available {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #16a34a;
+  color: white;
 }
 
-.vehicle-status.on-trip {
-  background: #fff7ed;
-  color: #f97316;
+.vehicle-status.on_trip {
+  background: #f59e0b;
+  color: #422006;
 }
 
 .vehicle-status.maintenance {
-  background: #fee2e2;
-  color: #dc2626;
+  background: #dc2626;
+  color: white;
 }
 
-.vehicle-top {
+/* Header Row: Brand + Actions */
+.vehicle-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+}
+
+/* Left side: icon + brand */
+.vehicle-left {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 22px;
-  font-weight: 700;
 }
+
+.vehicle-left svg {
+  font-size: 18px;
+}
+
+.vehicle-left h5 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Right side action icons */
+.vehicle-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Action Buttons */
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+  cursor: pointer;
+
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+}
+
+/* Edit */
+.icon-btn.edit {
+  color: #2563eb;
+}
+
+.icon-btn.edit:hover {
+  background: #eff6ff;
+  transform: scale(1.08);
+}
+
+/* Delete */
+.icon-btn.delete {
+  color: #dc2626;
+}
+
+.icon-btn.delete:hover {
+  background: #fee2e2;
+  transform: scale(1.08);
+}
+
 
 .vehicle-info {
   margin-top: 12px;
@@ -111,7 +191,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(37,211,102,.45);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.45);
 }
 
 .edit-btn {
@@ -125,5 +205,320 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(37,99,235,.45);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.col {
+  flex: 1;
+}
+
+.right {
+  text-align: right;
+}
+
+label {
+  font-size: 12px;
+  color: #888;
+}
+
+p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.full-row-title {
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
+  .right {
+    text-align: left;
+  }
+}
+
+/* INSURANCE CONTAINER */
+/* INSURANCE BOX */
+.insurance-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  transition: all 0.25s ease;
+}
+
+/* EXPIRED STATE */
+.insurance-expired {
+  background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+  border: 1.5px solid #ef4444;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+  animation: glowPulse 1.6s infinite alternate;
+}
+
+/* HEADER */
+.insurance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #1f2937;
+}
+
+/* EXPIRED BADGE */
+.expired-badge {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45);
+}
+
+/* GRID */
+.insurance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.insurance-grid label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.insurance-grid p {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* PULSE ANIMATION */
+@keyframes glowPulse {
+  from {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  to {
+    box-shadow: 0 0 22px rgba(239, 68, 68, 0.65);
+  }
+}
+
+.insurance-box.expired {
+  border: 1.5px solid rgba(239, 68, 68, 0.45);
+  background: linear-gradient(135deg, #fff5f5, #fffafa);
+  box-shadow:
+    0 10px 28px rgba(239, 68, 68, 0.18),
+    inset 0 0 0 1px rgba(239, 68, 68, 0.12);
+}
+
+.insurance-box.expiring {
+  border: 1.5px solid #f59e0b;
+  background: linear-gradient(135deg, #fff7ed, #fffbeb);
+  box-shadow: 0 10px 26px rgba(245, 158, 11, 0.25);
+}
+
+/* WARNING BADGE — EXPIRING SOON */
+.warning-badge {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: #7c2d12;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+
+  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.5);
+}
+
+.insurance-box.safe {
+  border: 1.5px solid rgba(34, 197, 94, 0.45); /* emerald green */
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  box-shadow:
+    0 10px 28px rgba(34, 197, 94, 0.18),
+    inset 0 0 0 1px rgba(34, 197, 94, 0.12);
+}
+
+.insurance-box.expired:hover {
+  box-shadow:
+    0 14px 34px rgba(34, 197, 94, 0.28),
+    inset 0 0 0 1px rgba(34, 197, 94, 0.18);
+  transform: translateY(-2px);
+}
+
+.insurance-box.expiring:hover {
+  box-shadow:
+    0 14px 34px rgba(34, 197, 94, 0.28),
+    inset 0 0 0 1px rgba(34, 197, 94, 0.18);
+  transform: translateY(-2px);
+}
+
+.insurance-box.safe:hover {
+  box-shadow:
+    0 14px 34px rgba(34, 197, 94, 0.28),
+    inset 0 0 0 1px rgba(34, 197, 94, 0.18);
+  transform: translateY(-2px);
+}
+
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.confirm-modal {
+  width: 360px;
+  background: white;
+  border-radius: 18px;
+  padding: 24px 22px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  animation: pop 0.25s ease;
+}
+
+.confirm-modal h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.confirm-modal p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.confirm-actions .btn {
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.confirm-actions .btn.cancel {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.confirm-actions .btn.cancel:hover {
+  background: #e5e7eb;
+}
+
+.confirm-actions .btn.danger {
+  background: linear-gradient(135deg,#ef4444,#dc2626);
+  color: white;
+  border: none;
+  box-shadow: 0 10px 22px rgba(239,68,68,0.45);
+}
+
+.confirm-actions .btn.danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(239,68,68,0.6);
+}
+
+@keyframes pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* PREMIUM EMPTY STATE */
+.no-data-wrapper {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 320px;
+}
+
+.no-data-card {
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+  border-radius: 22px;
+  padding: 48px 44px;
+  text-align: center;
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  max-width: 420px;
+  width: 100%;
+}
+
+.no-data-icon {
+  font-size: 64px;
+  margin-bottom: 14px;
+}
+
+.no-data-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1f2937;
+}
+
+.no-data-card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+/* Bigger add button */
+.add-vehicle-btn.large {
+  padding: 12px 24px;
+  font-size: 15px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45);
+  transition: all 0.25s ease;
+}
+
+.add-vehicle-btn.large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.55);
+}
+
+.no-data-card {
+  animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
