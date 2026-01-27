@@ -12,3 +12,4 @@ django-redis==5.4.0
 django-storages==1.14.3
 django-simple-history==3.5.0
 django-timezone-field==6.1
+pillow==11.3.0

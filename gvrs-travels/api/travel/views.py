@@ -1,8 +1,9 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Vehicle
-from .serializers import VehicleSerializer
+from .models import Vehicle, Driver
+from .serializers import VehicleSerializer, DriverSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -58,3 +59,52 @@ def vehicle_detail(request, pk):
     elif request.method == 'DELETE':
         vehicle.delete()
         return Response({"message": "Vehicle deleted successfully"})
+
+
+@api_view(['GET', 'POST'])
+@parser_classes([MultiPartParser, FormParser])
+def driver_list_create(request):
+    """
+    GET  → List all drivers
+    POST → Create new driver
+    """
+    if request.method == 'GET':
+        drivers = Driver.objects.all().order_by('-id')
+        serializer = DriverSerializer(drivers, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = DriverSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser, FormParser])
+def driver_detail(request, pk):
+    """
+    GET    → Retrieve driver
+    PUT    → Update driver
+    DELETE → Delete driver
+    """
+    try:
+        driver = Driver.objects.get(pk=pk)
+    except Driver.DoesNotExist:
+        return Response({"error": "Driver not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = DriverSerializer(driver)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = DriverSerializer(driver, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        driver.delete()
+        return Response({"message": "Driver deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
