@@ -6,8 +6,12 @@ const LogoLoader = () => {
     <div className="loader-wrapper">
       <div className="logo-loader">
         <img src={logo} alt="logo" className="logo-base" />
-        <div className="logo-fill"></div>
+
+        <div className="logo-mask">
+          <img src={logo} alt="logo-fill" className="logo-color" />
+        </div>
       </div>
+
       <p className="loading-text">Loading...</p>
     </div>
   );

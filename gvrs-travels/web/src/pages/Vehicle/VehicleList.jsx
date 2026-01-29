@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./VehicleList.css";
-import { FaCar, FaShuttleVan, FaTrash } from "react-icons/fa";
+import { FaCarSide, FaShuttleVan, FaTrash, FaBusAlt } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import AddVehicleModal from "../AddVehicle/AddVehicleModal";
 import { VEHICLE_API } from "../../config/api";
@@ -16,12 +16,21 @@ const VehiclesList = () => {
   const [loading, setLoading] = useState(false);
 
   /* =========================
+      SEARCH & PAGINATION
+  ========================= */
+
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const cardsPerPage = 6;
+
+  /* =========================
      FETCH VEHICLES
   ========================= */
 
   const fetchVehicles = async () => {
-
     try {
+      setLoading(true);
       const res = await axios.get(VEHICLE_API);
       setVehicles(res.data);
     } catch (err) {
@@ -29,23 +38,31 @@ const VehiclesList = () => {
     } finally {
       setLoading(false);
     }
-
-    // try {
-    //   setLoading(true);
-    //   const res = await fetch(VEHICLE_API);
-    //   const data = await res.json();
-    //   setVehicles(data);
-    // } catch (err) {
-    //   console.error("Fetch error:", err);
-    //   alert("Failed to load vehicles");
-    // } finally {
-    //   setLoading(false);
-    // }
   };
 
   useEffect(() => {
     fetchVehicles();
   }, []);
+
+  /* =========================
+     FILTER + PAGINATION LOGIC
+  ========================= */
+
+  const filteredVehicles = vehicles.filter((v) =>
+    `${v.brand} ${v.model} ${v.vehicle_number}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+
+  const indexOfLast = currentPage * cardsPerPage;
+  const indexOfFirst = indexOfLast - cardsPerPage;
+  const currentVehicles = filteredVehicles.slice(indexOfFirst, indexOfLast);
+
+  const totalPages = Math.ceil(filteredVehicles.length / cardsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   /* =========================
      INSURANCE STATUS LOGIC
@@ -72,52 +89,116 @@ const VehiclesList = () => {
     setShowModal(true);
   };
 
-  const handleDeleteVehicle = async () => {
+  const handleDeleteVehicle = async (vehicle) => {
+    if (!window.confirm(`Delete ${vehicle.name}?`)) return;
+
     try {
-      await fetch(`${VEHICLE_API}${vehicleToDelete.id}/`, {
+      const res = await fetch(`${VEHICLE_API}${vehicleToDelete.id}/`, {
         method: "DELETE",
       });
 
-      setShowDeleteModal(false);
-      setVehicleToDelete(null);
+      if (!res.ok) throw new Error("Delete failed");
+
+      toast.success("Vehicle deleted successfully");
       fetchVehicles();
     } catch (err) {
-      console.error(err);
-      alert("Delete failed");
+      toast.error("Failed to delete vehicle");
     }
+  };
+
+
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}-${month}-${year}`;
+  };
+
+  const getVehicleIcon = (type) => {
+    switch (type) {
+      case "car":
+        return <FaCarSide className="vehicle-icon car" />;
+      case "van":
+        return <FaShuttleVan className="vehicle-icon van" />;
+      case "bus":
+        return <FaBusAlt className="vehicle-icon bus" />;
+      // case "tempo":
+      //   return <FaTruckMoving className="vehicle-icon tempo" />;
+      default:
+        return <FaCarSide className="vehicle-icon car" />;
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, currentPage + 2);
+
+    if (currentPage <= 3) {
+      start = 1;
+      end = Math.min(5, totalPages);
+    }
+
+    if (currentPage >= totalPages - 2) {
+      start = Math.max(1, totalPages - 4);
+      end = totalPages;
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   };
 
   return (
     <div className="vehicle-page">
       <div className="vehicle-header">
         <h1>Vehicles</h1>
-        <button className="add-vehicle-btn" onClick={() => setShowModal(true)}>
-          + Add Vehicle
-        </button>
+
+        {/* SEARCH + ADD BUTTON */}
+        <div className="vehicle-header-actions">
+          <div className="search-box">
+            <svg viewBox="0 0 24 24">
+              <path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z" />
+            </svg>
+
+            <input
+              type="text"
+              placeholder="Search vehicles..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <button
+            className="add-vehicle-btn"
+            onClick={() => setShowModal(true)}
+          >
+            + Add Vehicle
+          </button>
+        </div>
       </div>
 
-      {loading && <p className="loading">Loading vehicles...</p>}
+      {loading && <LogoLoader />}
 
       <div className="vehicle-grid">
-        {vehicles.length === 0 ? (
+        {currentVehicles.length === 0 ? (
           <div className="no-data-wrapper">
             <div className="no-data-card">
               <div className="no-data-icon">🚗</div>
-              <h3>No Vehicles Added</h3>
-              <p>
-                You haven’t added any vehicles yet. Start by adding your first
-                vehicle.
-              </p>
+              <h3>No Vehicles Found</h3>
+              <p>Try searching with different keywords.</p>
             </div>
           </div>
         ) : (
-          vehicles.map((v) => {
+          currentVehicles.map((v) => {
             const status = insuranceStatus(v.insurance_end_date);
             return (
               <div key={v.id} className={`vehicle-card ${v.vehicle_status}`}>
                 <div className="vehicle-top-row">
                   <div className="vehicle-left">
-                    {v.vehicle_type === "car" ? <FaCar /> : <FaShuttleVan />}
+                    {getVehicleIcon(v.vehicle_type)}
                     <h5>
                       {v.brand} {v.model}
                     </h5>
@@ -127,7 +208,6 @@ const VehiclesList = () => {
                     <button
                       className="icon-btn edit"
                       onClick={() => handleEditVehicle(v)}
-                      title="Edit Vehicle"
                     >
                       <MdEdit />
                     </button>
@@ -138,7 +218,6 @@ const VehiclesList = () => {
                         setVehicleToDelete(v);
                         setShowDeleteModal(true);
                       }}
-                      title="Delete Vehicle"
                     >
                       <FaTrash />
                     </button>
@@ -157,7 +236,6 @@ const VehiclesList = () => {
                   </div>
                 </div>
 
-                {/* INSURANCE BLOCK */}
                 <div className={`insurance-box ${status}`}>
                   <div className="insurance-header">
                     Insurance Details
@@ -177,12 +255,12 @@ const VehiclesList = () => {
 
                     <div>
                       <label>Start</label>
-                      <p>{v.insurance_start_date}</p>
+                      <p>{formatDate(v.insurance_start_date)}</p>
                     </div>
 
                     <div>
                       <label>End</label>
-                      <p>{v.insurance_end_date}</p>
+                      <p>{formatDate(v.insurance_end_date)}</p>
                     </div>
                   </div>
                 </div>
@@ -227,6 +305,83 @@ const VehiclesList = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ULTRA PREMIUM PAGINATION */}
+      {totalPages > 1 && (
+        <div className="pagination-clean">
+          <button
+            className="page-btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(1)}
+            title="First"
+          >
+            &lt;&lt;
+          </button>
+
+          <button
+            className="page-btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            title="Previous"
+          >
+            &lt;
+          </button>
+
+          <div className="page-numbers">
+            {getPageNumbers()[0] > 1 && (
+              <>
+                <button
+                  className="page-number"
+                  onClick={() => setCurrentPage(1)}
+                >
+                  1
+                </button>
+                <span className="dots">...</span>
+              </>
+            )}
+
+            {getPageNumbers().map((page) => (
+              <button
+                key={page}
+                className={`page-number ${currentPage === page ? "active" : ""}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            ))}
+
+            {getPageNumbers().slice(-1)[0] < totalPages && (
+              <>
+                <span className="dots">...</span>
+                <button
+                  className="page-number"
+                  onClick={() => setCurrentPage(totalPages)}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          <button
+            className="page-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            title="Next"
+          >
+            &gt;
+          </button>
+
+          <button
+            className="page-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(totalPages)}
+            title="Last"
+          >
+            &gt;&gt;
+          </button>
         </div>
       )}
     </div>

@@ -2,12 +2,12 @@
   padding: 24px;
 }
 
-.vehicle-header {
+/* .vehicle-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-}
+} */
 
 .vehicle-header h1 {
   font-size: 28px;
@@ -104,7 +104,7 @@
 }
 
 .vehicle-left svg {
-  font-size: 18px;
+  font-size: 45px;
 }
 
 .vehicle-left h5 {
@@ -156,7 +156,6 @@
   background: #fee2e2;
   transform: scale(1.08);
 }
-
 
 .vehicle-info {
   margin-top: 12px;
@@ -393,7 +392,7 @@ p {
   border-radius: 18px;
   padding: 24px 22px;
   text-align: center;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
   animation: pop 0.25s ease;
 }
 
@@ -426,7 +425,7 @@ p {
   background: #f3f4f6;
   color: #374151;
   border: 1px solid #d1d5db;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .confirm-actions .btn.cancel:hover {
@@ -434,20 +433,26 @@ p {
 }
 
 .confirm-actions .btn.danger {
-  background: linear-gradient(135deg,#ef4444,#dc2626);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
-  box-shadow: 0 10px 22px rgba(239,68,68,0.45);
+  box-shadow: 0 10px 22px rgba(239, 68, 68, 0.45);
 }
 
 .confirm-actions .btn.danger:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(239,68,68,0.6);
+  box-shadow: 0 14px 28px rgba(239, 68, 68, 0.6);
 }
 
 @keyframes pop {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* PREMIUM EMPTY STATE */
@@ -521,4 +526,85 @@ p {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.vehicle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+/* Right side container */
+.vehicle-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Search input container */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  height: 38px;
+  padding: 0 14px 0 36px;
+  border-radius: 22px;
+  border: 1px solid #d0d7de;
+  outline: none;
+  font-size: 14px;
+  width: 260px;
+  transition: 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #0b5ed7;
+  box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.15);
+}
+
+/* Search icon */
+.search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.vehicle-icon {
+  font-size: 22px;
+  margin-right: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* CAR — Corporate Blue */
+.vehicle-icon.car {
+  color: #2563eb;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+/* VAN — Executive Purple */
+.vehicle-icon.van {
+  color: #7c3aed;
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+}
+
+/* BUS — Heavy Transport Teal */
+.vehicle-icon.bus {
+  color: #0f766e;
+  background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+}
+
+/* TEMPO */
+.vehicle-icon.tempo {
+  color: #c2410c;
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
 }

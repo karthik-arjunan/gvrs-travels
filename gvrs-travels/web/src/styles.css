@@ -4,7 +4,9 @@
   box-sizing: border-box;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   font-family: "Segoe UI", sans-serif;
 }
@@ -148,3 +150,14 @@ html, body, #root {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
+button.btn.save:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+  background: #1d4ed8;
+}
+
+button.btn.cancel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+  background: #dc2626;
+}

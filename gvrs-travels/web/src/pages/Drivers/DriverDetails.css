@@ -142,32 +142,6 @@
   margin-right: 6px;
 }
 
-/* =========================
-   VIEW (EYE) ICON
-========================= */
-.licence-view-icon {
-  position: absolute;
-  bottom: 12px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #2563eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-}
-
-.licence-view-icon:hover {
-  background: #2563eb;
-  color: #ffffff;
-  transform: scale(1.05);
-}
 
 /* =========================
    RESPONSIVE BREAKPOINTS
@@ -264,10 +238,6 @@
   cursor: pointer;
 }
 
-.btn.cancel:hover {
-  background: #dc2626;
-}
-
 /* =========================
    PAGE HEADER (TITLE + ADD)
 ========================= */
@@ -335,4 +305,197 @@
   background: #ffffff;
 
   display: block;
+}
+
+.cropper-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cropper-container {
+  background: #fff;
+  width: 90%;
+  max-width: 480px;
+  height: 550px;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.cropper-container > div:first-child {
+  flex: 1;
+  position: relative;
+}
+
+.cropper-controls {
+  padding-top: 10px;
+}
+
+.cropper-controls input[type="range"] {
+  width: 100%;
+}
+
+.cropper-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.cropper-btns button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cropper-btns .cancel {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.cropper-btns .save {
+  background: #1677ff;
+  color: #fff;
+}
+
+/* =========================
+   PAGINATION STYLES
+========================= */
+.pagination-clean {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  gap: 14px;
+  margin: 32px 0 10px;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  background: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f4f7fb;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+.page-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.page-number:hover {
+  background: #f4f7fb;
+}
+
+.page-number.active {
+  background: #1677ff;
+  color: white;
+  border-color: #1677ff;
+}
+.driver-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Premium search box */
+.search-box {
+  position: relative;
+  width: 280px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border-radius: 10px;
+  border: 1px solid #d0d7e2;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.25s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #1677ff;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
+}
+
+.search-box svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  fill: #6b7280;
+}
+
+.licence-actions {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.licence-view-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  transition: 0.25s ease;
+}
+
+.licence-view-icon.edit {
+  color: #2563eb;
+}
+
+.licence-view-icon.delete {
+  color: #ef4444;
+}
+
+/* =========================
+   VIEW (EYE) ICON
+========================= */
+
+.licence-view-icon.edit:hover,
+.licence-view-icon.delete:hover {
+  background: #2563eb;
+  color: #ffffff;
+  transform: scale(1.05);
 }

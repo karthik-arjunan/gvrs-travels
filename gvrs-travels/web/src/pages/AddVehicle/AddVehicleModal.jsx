@@ -14,19 +14,32 @@ import { VEHICLE_API } from "../../config/api";
 import { toast } from "react-toastify";
 import Select from "react-select";
 
-const brandOptions = [
-  { value: "Toyota", label: "Toyota" },
-  { value: "Honda", label: "Honda" },
-  { value: "Hyundai", label: "Hyundai" },
-  { value: "Tata", label: "Tata" },
-  { value: "Mahindra", label: "Mahindra" },
-  { value: "Maruti Suzuki", label: "Maruti Suzuki" },
-  { value: "Kia", label: "Kia" },
-  { value: "Skoda", label: "Skoda" },
-  { value: "Volkswagen", label: "Volkswagen" },
-  { value: "BMW", label: "BMW" },
-  { value: "Audi", label: "Audi" },
-];
+const vehicleBrandMap = {
+  car: [
+    { value: "Toyota", label: "Toyota" },
+    { value: "Honda", label: "Honda" },
+    { value: "Hyundai", label: "Hyundai" },
+    { value: "Maruti Suzuki", label: "Maruti Suzuki" },
+    { value: "Kia", label: "Kia" },
+    { value: "Skoda", label: "Skoda" },
+    { value: "Volkswagen", label: "Volkswagen" },
+    { value: "BMW", label: "BMW" },
+    { value: "Audi", label: "Audi" },
+  ],
+  van: [
+    { value: "Tata", label: "Tata" },
+    { value: "Mahindra", label: "Mahindra" },
+    { value: "Force", label: "Force" },
+    { value: "Ashok Leyland", label: "Ashok Leyland" },
+  ],
+  bus: [
+    { value: "Volvo", label: "Volvo" },
+    { value: "Bharat Benz", label: "Bharat Benz" },
+    { value: "Scania", label: "Scania" },
+    { value: "Tata", label: "Tata" },
+    { value: "Ashok Leyland", label: "Ashok Leyland" },
+  ],
+};
 
 const premiumSelectStyles = {
   control: (base, state) => ({
@@ -100,7 +113,6 @@ const premiumSelectStyles = {
   }),
 };
 
-
 const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
   const [vehicleType, setVehicleType] = useState("");
   const [brand, setBrand] = useState("");
@@ -112,9 +124,21 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
   const [insurance_start_date, setInsuranceStartDate] = useState("");
   const [insurance_end_date, setInsuranceEndDate] = useState("");
   const [carStatus, setCarStatus] = useState("");
+  const brandOptions = vehicleBrandMap[vehicleType] || [];
 
   const handleSave = async () => {
-    if (!vehicleType || !carModel || !vehicleNo) {
+    if (
+      !vehicleType ||
+      !brand ||
+      !carModel ||
+      !vehicleNo ||
+      !seatCapacity ||
+      !fuelType ||
+      !insurance_company ||
+      !insurance_start_date ||
+      !insurance_end_date ||
+      !carStatus
+    ) {
       toast.warning("Please fill all required fields");
       return;
     }
@@ -148,7 +172,20 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to save vehicle");
+      if (!res.ok) {
+        const errData = await res.json();
+
+        if (errData?.license_number) {
+          toast.error(errData.license_number[0]);
+        } else if (errData?.detail) {
+          toast.error(errData.detail);
+        } else if (errData?.non_field_errors) {
+          toast.error(errData.non_field_errors[0]);
+        } else {
+          toast.error("Vehicle already exists or invalid data");
+        }
+        return;
+      }
 
       const data = await res.json();
 
@@ -180,6 +217,12 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
       setInsuranceEndDate(editingVehicle.insurance_end_date);
     }
   }, [editingVehicle]);
+
+  useEffect(() => {
+    if (!editingVehicle) {
+      setBrand("");
+    }
+  }, [vehicleType]);
 
   return (
     <div className="modal-overlay">
@@ -234,10 +277,24 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
                 options={brandOptions}
                 value={brandOptions.find((b) => b.value === brand) || null}
                 onChange={(selected) => setBrand(selected.value)}
+                placeholder={
+                  vehicleType
+                    ? `Select ${vehicleType} brand`
+                    : "Select vehicle type first"
+                }
+                styles={premiumSelectStyles}
+                isSearchable
+                isDisabled={!vehicleType}
+              />
+              {/* <Select
+                className="premium-select"
+                options={brandOptions}
+                value={brandOptions.find((b) => b.value === brand) || null}
+                onChange={(selected) => setBrand(selected.value)}
                 placeholder="Select or search brand"
                 styles={premiumSelectStyles}
                 isSearchable
-              />
+              /> */}
               {/* <datalist id="brand-list">
                 <option value="Toyota" />
                 <option value="Honda" />

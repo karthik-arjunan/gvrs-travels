@@ -295,8 +295,11 @@
    PAGINATION (PREMIUM)
 ========================= */
 .pagination-wrapper {
-  margin: 40px 0 20px;
-  text-align: center;
+  position: sticky;
+  bottom: 12px;
+  background: white;
+  padding: 12px 0;
+  z-index: 10;
 }
 
 .pagination-info {
