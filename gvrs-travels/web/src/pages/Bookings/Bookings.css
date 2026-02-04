@@ -17,7 +17,6 @@
   gap: 22px;
 }
 
-
 /* =========================
    ACTION BUTTONS
 ========================= */
@@ -78,8 +77,8 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 .booking-status.completed {
-  background: #eff6ff;   /* light blue */
-  color: #2563eb;        /* blue-600 */
+  background: #eff6ff; /* light blue */
+  color: #2563eb; /* blue-600 */
 }
 
 .amount-input-wrapper {
@@ -90,7 +89,6 @@
   padding: 0 12px;
   background: #fff;
 }
-
 
 .currency {
   font-weight: 600;
@@ -126,4 +124,37 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* span full booking grid */
+.three-col-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* react-select MUST stretch */
+.react-status-select {
+  width: 100%;
+}
+
+.react-status__control {
+  width: 100% !important;
+  min-height: 42px;
+  border-radius: 10px !important;
+  border: 1px solid #d0d5dd !important;
+  box-shadow: none !important;
+}
+
+.react-status__value-container {
+  padding: 0 12px !important;
+}
+
+.react-status__placeholder {
+  font-size: 14px;
+}
+
+.react-status__indicator-separator {
+  display: none;
 }

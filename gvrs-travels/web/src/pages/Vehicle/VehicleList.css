@@ -34,7 +34,7 @@
 .vehicle-card {
   background: #ffffff;
   border-radius: 14px;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transition: 0.3s ease;
 }
@@ -253,12 +253,12 @@ p {
 /* INSURANCE CONTAINER */
 /* INSURANCE BOX */
 .insurance-box {
-  margin-top: 14px;
-  padding: 14px 16px;
+  background: #f0fff7;
   border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  transition: all 0.25s ease;
+  padding: 8px 12px;
+  margin-top: 8px; 
+  border-radius: 10px;
+  border-left: 4px solid #22c55e;
 }
 
 /* EXPIRED STATE */
@@ -270,43 +270,43 @@ p {
 }
 
 /* HEADER */
+
 .insurance-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 10px;
-  color: #1f2937;
-}
-
-/* EXPIRED BADGE */
-.expired-badge {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.3px;
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45);
+  font-size: 13px; 
+  margin-bottom: 6px;
 }
 
-/* GRID */
+.expired-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 2px 8px;
+  font-size: 11px;
+  border-radius: 999px;
+}
+
 .insurance-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 8px;
 }
 
 .insurance-grid label {
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
+  margin-bottom: 2px;
+
 }
 
 .insurance-grid p {
   font-weight: 600;
   color: #111827;
+  font-size: 13px;
+  line-height: 1.2;           /* VERY IMPORTANT */
+  margin: 0;
 }
 
 /* PULSE ANIMATION */
@@ -320,30 +320,21 @@ p {
 }
 
 .insurance-box.expired {
-  border: 1.5px solid rgba(239, 68, 68, 0.45);
-  background: linear-gradient(135deg, #fff5f5, #fffafa);
-  box-shadow:
-    0 10px 28px rgba(239, 68, 68, 0.18),
-    inset 0 0 0 1px rgba(239, 68, 68, 0.12);
+  background: #fef2f2;
+  border-left-color: #ef4444;
 }
 
 .insurance-box.expiring {
-  border: 1.5px solid #f59e0b;
-  background: linear-gradient(135deg, #fff7ed, #fffbeb);
-  box-shadow: 0 10px 26px rgba(245, 158, 11, 0.25);
+  background: #fff7ed;
+  border-left-color: #f97316;
 }
 
-/* WARNING BADGE — EXPIRING SOON */
 .warning-badge {
-  background: linear-gradient(135deg, #facc15, #f59e0b);
-  color: #7c2d12;
-  padding: 4px 10px;
-  border-radius: 999px;
+  background: #ffedd5;
+  color: #c2410c;
+  padding: 2px 8px;
   font-size: 11px;
-  font-weight: 700;
-  margin-left: 8px;
-
-  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.5);
+  border-radius: 999px;
 }
 
 .insurance-box.safe {
@@ -607,4 +598,20 @@ p {
 .vehicle-icon.tempo {
   color: #c2410c;
   background: linear-gradient(135deg, #ffedd5, #fed7aa);
+}
+
+.vehicle-card > .insurance-box + .insurance-box {
+  margin-top: 6px;            /* compact stacking */
+}
+
+.expired-badge,
+.warning-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+}
+
+.placeholder-center {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* horizontal center */
 }

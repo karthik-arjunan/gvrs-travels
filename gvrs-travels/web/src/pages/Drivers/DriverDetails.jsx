@@ -628,7 +628,7 @@ const DriverDetails = () => {
             onClick={() => setCurrentPage(1)}
             title="First"
           >
-            ⏮
+            &lt;&lt;
           </button>
 
           <button
@@ -637,7 +637,7 @@ const DriverDetails = () => {
             onClick={() => setCurrentPage((p) => p - 1)}
             title="Previous"
           >
-            ◀
+            &lt;
           </button>
 
           <div className="page-numbers">
@@ -682,7 +682,7 @@ const DriverDetails = () => {
             onClick={() => setCurrentPage((p) => p + 1)}
             title="Next"
           >
-            ▶
+            &gt;
           </button>
 
           <button
@@ -691,7 +691,7 @@ const DriverDetails = () => {
             onClick={() => setCurrentPage(totalPages)}
             title="Last"
           >
-            ⏭
+            &gt;&gt;
           </button>
         </div>
       )}

@@ -8,9 +8,10 @@ import {
   FaTimesCircle,
   FaPlus,
   FaWhatsapp,
+  FaTrash,
+  FaCalendarCheck,
 } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-
 
 /* =========================
    SUMMARY DATA
@@ -172,9 +173,6 @@ Please be on time.
           </div>
         ))}
       </div>
-
-      <div className="section-divider" />
-
       {/* TABS */}
       <div className="booking-tabs">
         {["all", "confirmed", "pending", "cancelled"].map((tab) => (
@@ -193,45 +191,40 @@ Please be on time.
         {paginatedBookings.map((booking) => (
           <div
             key={booking.id}
-            className={`bookings-card ${
+            className={`bookings-card ${booking.status} ${
               ["confirmed", "pending"].includes(booking.status)
                 ? "has-whatsapp"
                 : ""
             }`}
           >
-            {/* STATUS + EDIT */}
-            <div className="booking-actions">
-              <span className={`booking-status ${booking.status}`}>
-                {booking.status}
-              </span>
-
-              {["confirmed", "pending"].includes(booking.status) && (
-                <button
-                  className="edit-booking-btn"
-                  title="Edit Booking"
-                  onClick={() => openEdit(booking)}
-                >
-                  <MdEdit />
-                </button>
-              )}
+            <div className="booking-title-row">
+              <h3 className="booking-title">
+                {booking.place} → {booking.country}
+              </h3>
+              {/* STATUS + EDIT */}
+              <div className="booking-actions">
+                <span className="action-icons">
+                  {/* WHATSAPP */}
+                  {["confirmed", "pending"].includes(booking.status) && (
+                    <button
+                      className="whatsapp-pill"
+                      title="Send WhatsApp to Driver"
+                      onClick={() =>
+                        sendWhatsAppToDriver(booking.driverPhone, booking)
+                      }
+                    >
+                      <FaWhatsapp />
+                    </button>
+                  )}
+                  <button className="icon-btn edit" title="Edit booking">
+                    <MdEdit />
+                  </button>
+                  <button className="icon-btn delete" title="Delete booking">
+                    <FaTrash />
+                  </button>
+                </span>
+              </div>
             </div>
-
-            {/* WHATSAPP */}
-            {["confirmed", "pending"].includes(booking.status) && (
-              <button
-                className="whatsapp-pill"
-                title="Send WhatsApp to Driver"
-                onClick={() =>
-                  sendWhatsAppToDriver(booking.driverPhone, booking)
-                }
-              >
-                <FaWhatsapp />
-              </button>
-            )}
-
-            <h3 className="booking-title">
-              {booking.place} → {booking.country}
-            </h3>
 
             <div className="booking-info">
               <div>
@@ -244,7 +237,15 @@ Please be on time.
               </div>
             </div>
 
-            <div className="booking-date">📅 {booking.date}</div>
+            <div className="booking-date">
+              <span>
+                <FaCalendarCheck /> {booking.date}
+              </span>
+
+              <span className={`booking-status ${booking.status}`}>
+                {booking.status}
+              </span>
+            </div>
 
             <div className="booking-footer">
               <div>

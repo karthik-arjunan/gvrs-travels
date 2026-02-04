@@ -6,6 +6,83 @@ import AddVehicleModal from "../AddVehicle/AddVehicleModal";
 import { VEHICLE_API } from "../../config/api";
 import axios from "axios";
 import LogoLoader from "../LogoLoader/LogoLoader";
+import { MdRemoveCircleOutline } from "react-icons/md";
+/* =========================
+   EXPIRY STATUS LOGIC
+========================= */
+const getExpiryStatus = (endDate) => {
+  if (!endDate) return "active";
+
+  const today = new Date();
+  const end = new Date(endDate);
+  const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return "expired";
+  if (diffDays <= 30) return "expiring";
+  return "active";
+};
+
+/* =========================
+   DATE FORMATTER
+========================= */
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}-${month}-${year}`;
+};
+
+/* =========================
+   REUSABLE CERTIFICATE BOX
+========================= */
+const CertificateBox = ({ title, company, startDate, endDate }) => {
+  const status = getExpiryStatus(endDate);
+
+  return (
+    <div className={`insurance-box ${status}`}>
+      <div className="insurance-header">
+        {title}
+
+        {status === "expired" && <span className="expired-badge">Expired</span>}
+
+        {status === "expiring" && (
+          <span className="warning-badge">Expiring Soon</span>
+        )}
+      </div>
+
+      <div className="insurance-grid">
+        {/* {company && (
+          <div>
+            <label>Company</label>
+            <p>{company}</p>
+          </div>
+        )} */}
+        <div className="placeholder-col">
+          {company ? (
+            <>
+              <label>Company</label>
+              <p>{company}</p>
+            </>
+          ) : (
+            <div className="placeholder-center">
+              <label>&nbsp;</label>
+              <MdRemoveCircleOutline className="placeholder-icon" />
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label>Start</label>
+          <p>{formatDate(startDate)}</p>
+        </div>
+
+        <div>
+          <label>End</label>
+          <p>{formatDate(endDate)}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const VehiclesList = () => {
   const [vehicles, setVehicles] = useState([]);
@@ -18,16 +95,13 @@ const VehiclesList = () => {
   /* =========================
       SEARCH & PAGINATION
   ========================= */
-
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
-  const cardsPerPage = 6;
+  const cardsPerPage = 3;
 
   /* =========================
      FETCH VEHICLES
   ========================= */
-
   const fetchVehicles = async () => {
     try {
       setLoading(true);
@@ -37,95 +111,6 @@ const VehiclesList = () => {
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
-
-  /* =========================
-     FILTER + PAGINATION LOGIC
-  ========================= */
-
-  const filteredVehicles = vehicles.filter((v) =>
-    `${v.brand} ${v.model} ${v.vehicle_number}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
-
-  const indexOfLast = currentPage * cardsPerPage;
-  const indexOfFirst = indexOfLast - cardsPerPage;
-  const currentVehicles = filteredVehicles.slice(indexOfFirst, indexOfLast);
-
-  const totalPages = Math.ceil(filteredVehicles.length / cardsPerPage);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
-
-  /* =========================
-     INSURANCE STATUS LOGIC
-  ========================= */
-
-  const insuranceStatus = (endDate) => {
-    if (!endDate) return "safe";
-
-    const today = new Date();
-    const expiry = new Date(endDate);
-    const diffDays = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return "expired";
-    if (diffDays <= 30) return "expiring";
-    return "safe";
-  };
-
-  /* =========================
-     HANDLERS
-  ========================= */
-
-  const handleEditVehicle = (vehicle) => {
-    setEditingVehicle(vehicle);
-    setShowModal(true);
-  };
-
-  const handleDeleteVehicle = async (vehicle) => {
-    if (!window.confirm(`Delete ${vehicle.name}?`)) return;
-
-    try {
-      const res = await fetch(`${VEHICLE_API}${vehicleToDelete.id}/`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) throw new Error("Delete failed");
-
-      toast.success("Vehicle deleted successfully");
-      fetchVehicles();
-    } catch (err) {
-      toast.error("Failed to delete vehicle");
-    }
-  };
-
-
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const [year, month, day] = dateStr.split("-");
-    return `${day}-${month}-${year}`;
-  };
-
-  const getVehicleIcon = (type) => {
-    switch (type) {
-      case "car":
-        return <FaCarSide className="vehicle-icon car" />;
-      case "van":
-        return <FaShuttleVan className="vehicle-icon van" />;
-      case "bus":
-        return <FaBusAlt className="vehicle-icon bus" />;
-      // case "tempo":
-      //   return <FaTruckMoving className="vehicle-icon tempo" />;
-      default:
-        return <FaCarSide className="vehicle-icon car" />;
     }
   };
 
@@ -150,13 +135,69 @@ const VehiclesList = () => {
 
     return pages;
   };
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  /* =========================
+     FILTER + PAGINATION LOGIC
+  ========================= */
+  const filteredVehicles = vehicles.filter((v) =>
+    `${v.brand} ${v.model} ${v.vehicle_number}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+
+  const indexOfLast = currentPage * cardsPerPage;
+  const indexOfFirst = indexOfLast - cardsPerPage;
+  const currentVehicles = filteredVehicles.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredVehicles.length / cardsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  /* =========================
+     HANDLERS
+  ========================= */
+  const handleEditVehicle = (vehicle) => {
+    setEditingVehicle(vehicle);
+    setShowModal(true);
+  };
+
+  const handleDeleteVehicle = async () => {
+    if (!vehicleToDelete) return;
+
+    try {
+      await fetch(`${VEHICLE_API}${vehicleToDelete.id}/`, {
+        method: "DELETE",
+      });
+      fetchVehicles();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setShowDeleteModal(false);
+    }
+  };
+
+  const getVehicleIcon = (type) => {
+    switch (type) {
+      case "car":
+        return <FaCarSide className="vehicle-icon car" />;
+      case "van":
+        return <FaShuttleVan className="vehicle-icon van" />;
+      case "bus":
+        return <FaBusAlt className="vehicle-icon bus" />;
+      default:
+        return <FaCarSide className="vehicle-icon car" />;
+    }
+  };
 
   return (
     <div className="vehicle-page">
       <div className="vehicle-header">
         <h1>Vehicles</h1>
 
-        {/* SEARCH + ADD BUTTON */}
         <div className="vehicle-header-actions">
           <div className="search-box">
             <svg viewBox="0 0 24 24">
@@ -183,94 +224,80 @@ const VehiclesList = () => {
       {loading && <LogoLoader />}
 
       <div className="vehicle-grid">
-        {currentVehicles.length === 0 ? (
-          <div className="no-data-wrapper">
-            <div className="no-data-card">
-              <div className="no-data-icon">🚗</div>
-              <h3>No Vehicles Found</h3>
-              <p>Try searching with different keywords.</p>
-            </div>
-          </div>
-        ) : (
-          currentVehicles.map((v) => {
-            const status = insuranceStatus(v.insurance_end_date);
-            return (
-              <div key={v.id} className={`vehicle-card ${v.vehicle_status}`}>
-                <div className="vehicle-top-row">
-                  <div className="vehicle-left">
-                    {getVehicleIcon(v.vehicle_type)}
-                    <h5>
-                      {v.brand} {v.model}
-                    </h5>
-                  </div>
-
-                  <div className="vehicle-actions">
-                    <button
-                      className="icon-btn edit"
-                      onClick={() => handleEditVehicle(v)}
-                    >
-                      <MdEdit />
-                    </button>
-
-                    <button
-                      className="icon-btn delete"
-                      onClick={() => {
-                        setVehicleToDelete(v);
-                        setShowDeleteModal(true);
-                      }}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col">
-                    <label>Vehicle No</label>
-                    <p>{v.vehicle_number}</p>
-                  </div>
-
-                  <div className="col right">
-                    <label>Seats</label>
-                    <p>{v.seating_capacity}</p>
-                  </div>
-                </div>
-
-                <div className={`insurance-box ${status}`}>
-                  <div className="insurance-header">
-                    Insurance Details
-                    {status === "expired" && (
-                      <span className="expired-badge">Expired</span>
-                    )}
-                    {status === "expiring" && (
-                      <span className="warning-badge">Expiring Soon</span>
-                    )}
-                  </div>
-
-                  <div className="insurance-grid">
-                    <div>
-                      <label>Company</label>
-                      <p>{v.insurance_company}</p>
-                    </div>
-
-                    <div>
-                      <label>Start</label>
-                      <p>{formatDate(v.insurance_start_date)}</p>
-                    </div>
-
-                    <div>
-                      <label>End</label>
-                      <p>{formatDate(v.insurance_end_date)}</p>
-                    </div>
-                  </div>
-                </div>
+        {currentVehicles.map((v) => (
+          <div key={v.id} className={`vehicle-card ${v.vehicle_status}`}>
+            <div className="vehicle-top-row">
+              <div className="vehicle-left">
+                {getVehicleIcon(v.vehicle_type)}
+                <h5>
+                  {v.brand} {v.model}
+                </h5>
               </div>
-            );
-          })
-        )}
+
+              <div className="vehicle-actions">
+                <button
+                  className="icon-btn edit"
+                  onClick={() => handleEditVehicle(v)}
+                >
+                  <MdEdit />
+                </button>
+
+                <button
+                  className="icon-btn delete"
+                  onClick={() => {
+                    setVehicleToDelete(v);
+                    setShowDeleteModal(true);
+                  }}
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col">
+                <label>Vehicle No</label>
+                <p>{v.vehicle_number}</p>
+              </div>
+
+              <div className="col right">
+                <label>Seats</label>
+                <p>{v.seating_capacity}</p>
+              </div>
+            </div>
+
+            {/* Insurance */}
+            <CertificateBox
+              title="Insurance Details"
+              company={v.insurance_company}
+              startDate={v.insurance_start_date}
+              endDate={v.insurance_end_date}
+            />
+
+            {/* PUC */}
+            <CertificateBox
+              title="PUC Details"
+              startDate={v.puc_start_date}
+              endDate={v.puc_end_date}
+            />
+
+            {/* FC */}
+            <CertificateBox
+              title="FC Details"
+              startDate={v.fc_start_date}
+              endDate={v.fc_end_date}
+            />
+
+            {/* Permit */}
+            <CertificateBox
+              title="Permit Details"
+              startDate={v.permit_start_date}
+              endDate={v.permit_end_date}
+            />
+          </div>
+        ))}
       </div>
 
-      {/* ADD / EDIT MODAL */}
       {showModal && (
         <AddVehicleModal
           onClose={() => {
@@ -281,34 +308,7 @@ const VehiclesList = () => {
           onSave={fetchVehicles}
         />
       )}
-
-      {/* DELETE CONFIRM MODAL */}
-      {showDeleteModal && (
-        <div className="confirm-modal-overlay">
-          <div className="confirm-modal">
-            <h3>Delete Vehicle?</h3>
-            <p>
-              Are you sure you want to delete
-              <strong> {vehicleToDelete?.brand}</strong> ?
-            </p>
-
-            <div className="confirm-actions">
-              <button
-                className="btn cancel"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-
-              <button className="btn danger" onClick={handleDeleteVehicle}>
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ULTRA PREMIUM PAGINATION */}
+      {/* PAGINATION */}
       {totalPages > 1 && (
         <div className="pagination-clean">
           <button
@@ -345,7 +345,9 @@ const VehiclesList = () => {
             {getPageNumbers().map((page) => (
               <button
                 key={page}
-                className={`page-number ${currentPage === page ? "active" : ""}`}
+                className={`page-number ${
+                  currentPage === page ? "active" : ""
+                }`}
                 onClick={() => setCurrentPage(page)}
               >
                 {page}
@@ -382,6 +384,31 @@ const VehiclesList = () => {
           >
             &gt;&gt;
           </button>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="confirm-modal-overlay">
+          <div className="confirm-modal">
+            <h3>Delete Vehicle?</h3>
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>{vehicleToDelete?.brand}</strong>?
+            </p>
+
+            <div className="confirm-actions">
+              <button
+                className="btn cancel"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button className="btn danger" onClick={handleDeleteVehicle}>
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

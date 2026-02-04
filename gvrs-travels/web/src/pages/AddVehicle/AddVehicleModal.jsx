@@ -123,22 +123,39 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
   const [insurance_company, setInsuranceCompany] = useState("");
   const [insurance_start_date, setInsuranceStartDate] = useState("");
   const [insurance_end_date, setInsuranceEndDate] = useState("");
-  const [carStatus, setCarStatus] = useState("");
+  const [carStatus, setCarStatus] = useState("available");
+  const [puc_start_date, setPucStartDate] = useState("");
+  const [puc_end_date, setPucEndDate] = useState("");
+
+  const [fc_start_date, setFcStartDate] = useState("");
+  const [fc_end_date, setFcEndDate] = useState("");
+  const [permit_start_date, setPermitStartDate] = useState("");
+  const [permit_end_date, setPermitEndDate] = useState("");
   const brandOptions = vehicleBrandMap[vehicleType] || [];
 
+  const requiredFields = [
+    vehicleType,
+    brand,
+    carModel,
+    vehicleNo,
+    seatCapacity,
+    fuelType,
+    insurance_company,
+    insurance_start_date,
+    insurance_end_date,
+    carStatus,
+
+    // new
+    puc_start_date,
+    puc_end_date,
+    fc_start_date,
+    fc_end_date,
+    permit_start_date,
+    permit_end_date,
+  ];
+
   const handleSave = async () => {
-    if (
-      !vehicleType ||
-      !brand ||
-      !carModel ||
-      !vehicleNo ||
-      !seatCapacity ||
-      !fuelType ||
-      !insurance_company ||
-      !insurance_start_date ||
-      !insurance_end_date ||
-      !carStatus
-    ) {
+    if (requiredFields.some((field) => !field))  {
       toast.warning("Please fill all required fields");
       return;
     }
@@ -155,6 +172,12 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
       insurance_start_date: insurance_start_date,
       insurance_end_date: insurance_end_date,
       vehicle_status: carStatus,
+      puc_start_date: puc_start_date,
+      puc_end_date: puc_end_date,
+      fc_start_date: fc_start_date,
+      fc_end_date: fc_end_date,
+      permit_start_date: permit_start_date,
+      permit_end_date: permit_end_date,
     };
 
     try {
@@ -215,6 +238,12 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
       setInsuranceCompany(editingVehicle.insurance_company);
       setInsuranceStartDate(editingVehicle.insurance_start_date);
       setInsuranceEndDate(editingVehicle.insurance_end_date);
+      setPucStartDate(editingVehicle.puc_start_date || "");
+      setPucEndDate(editingVehicle.puc_end_date || "");
+      setFcStartDate(editingVehicle.fc_start_date || "");
+      setFcEndDate(editingVehicle.fc_end_date || "");
+      setPermitStartDate(editingVehicle.permit_start_date || "");
+      setPermitEndDate(editingVehicle.permit_end_date || "");
     }
   }, [editingVehicle]);
 
@@ -286,28 +315,6 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
                 isSearchable
                 isDisabled={!vehicleType}
               />
-              {/* <Select
-                className="premium-select"
-                options={brandOptions}
-                value={brandOptions.find((b) => b.value === brand) || null}
-                onChange={(selected) => setBrand(selected.value)}
-                placeholder="Select or search brand"
-                styles={premiumSelectStyles}
-                isSearchable
-              /> */}
-              {/* <datalist id="brand-list">
-                <option value="Toyota" />
-                <option value="Honda" />
-                <option value="Hyundai" />
-                <option value="Tata" />
-                <option value="Mahindra" />
-                <option value="Maruti Suzuki" />
-                <option value="Kia" />
-                <option value="Skoda" />
-                <option value="Volkswagen" />
-                <option value="BMW" />
-                <option value="Audi" />
-              </datalist> */}
             </div>
             <div className="form-group">
               <label>
@@ -433,6 +440,78 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
                   name="insurance_end_date"
                   value={insurance_end_date}
                   onChange={(e) => setInsuranceEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="form-row-2">
+              <div className="form-group">
+                <label>
+                  PUC Start Date <span className="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={puc_start_date}
+                  onChange={(e) => setPucStartDate(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  PUC End Date <span className="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={puc_end_date}
+                  onChange={(e) => setPucEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="form-row-2">
+              <div className="form-group">
+                <label>
+                  FC Start Date <span className="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={fc_start_date}
+                  onChange={(e) => setFcStartDate(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  FC End Date <span className="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={fc_end_date}
+                  onChange={(e) => setFcEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="form-row-2">
+              <div className="form-group">
+                <label>
+                  Permit Start Date <span className="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={permit_start_date}
+                  onChange={(e) => setPermitStartDate(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Permit End Date <span className="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={permit_end_date}
+                  onChange={(e) => setPermitEndDate(e.target.value)}
                 />
               </div>
             </div>
