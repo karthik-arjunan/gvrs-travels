@@ -13,6 +13,12 @@ class Vehicle(models.Model):
     insurance_company = models.CharField(max_length=100)
     insurance_start_date = models.DateField()
     insurance_end_date = models.DateField()
+    puc_start_date = models.DateField(null=True, blank=True)
+    puc_end_date = models.DateField(null=True, blank=True)
+    fc_start_date = models.DateField(null=True, blank=True)
+    fc_end_date = models.DateField(null=True, blank=True)
+    permit_start_date = models.DateField(null=True, blank=True)
+    permit_end_date = models.DateField(null=True, blank=True)
     vehicle_status=models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,10 +39,40 @@ class Driver(models.Model):
 
     father_or_spouse_name = models.CharField(max_length=100)
     address = models.TextField()
-
+    driver_status = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} - {self.license_number}"
+
+
+class Booking(models.Model):
+
+    booking_id = models.CharField(max_length=30, unique=True)
+
+    customer_name = models.CharField(max_length=100)
+    customer_phone = models.CharField(max_length=15)
+
+    pickup_location = models.CharField(max_length=150)
+    drop_location = models.CharField(max_length=150)
+
+    driver_name = models.CharField(max_length=100)
+    driver_phone = models.CharField(max_length=15)
+
+    pickup_datetime = models.DateTimeField()
+    drop_date = models.DateField()
+
+    vehicle_type = models.CharField(max_length=10)
+
+    vehicle_number = models.CharField(max_length=30)
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    status = models.CharField(max_length=20)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.booking_id
 
