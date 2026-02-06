@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./VehicleList.css";
 import {
   FaCarSide,
@@ -120,7 +120,8 @@ const VehiclesList = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [page, setPage] = useState(1);
   const [toastQueue, setToastQueue] = useState([]);
-
+  const [showAlertPanel, setShowAlertPanel] = useState(false);
+  const panelRef = useRef(null);
   /* ================= ALERT ENGINE ================= */
 
   const getAlerts = () => {
@@ -224,6 +225,16 @@ const VehiclesList = () => {
     return () => clearInterval(timer);
   }, [toastQueue]);
 
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setShowAlertPanel(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
   /* FILTER */
   const filtered = vehicles.filter((v) =>
     `${v.brand} ${v.model} ${v.vehicle_number}`
@@ -276,33 +287,34 @@ const VehiclesList = () => {
       setShowDeleteModal(false);
     }
   };
-
-  const getFleetStats = () => {
+  const getTypeStats = (type) => {
     const base = {
-      car: { total: 0, available: 0, expired: 0 },
-      van: { total: 0, available: 0, expired: 0 },
-      bus: { total: 0, available: 0, expired: 0 },
+      total: 0,
+      available: 0,
+      booked: 0,
+      maintenance: 0,
     };
 
     vehicles.forEach((v) => {
-      const t = v.vehicle_type;
-      if (!base[t]) return;
+      if (v.vehicle_type !== type) return;
 
-      base[t].total++;
-      if (v.vehicle_status === "available") base[t].available++;
+      base.total++;
 
-      const expired =
-        getExpiryStatus(v.insurance_end_date) === "expired" ||
-        getExpiryStatus(v.fc_end_date) === "expired" ||
-        getExpiryStatus(v.permit_end_date) === "expired";
-
-      if (expired) base[t].expired++;
+      if (v.vehicle_status === "available") base.available++;
+      if (v.vehicle_status === "booked") base.booked++;
+      if (v.vehicle_status === "maintenance") base.maintenance++;
     });
 
     return base;
   };
 
-  const fleetStats = getFleetStats();
+  const getAlertIcon = (msg) => {
+    if (msg.includes("Insurance")) return <FaShieldAlt />;
+    if (msg.includes("PUC")) return <FaFileAlt />;
+    if (msg.includes("FC")) return <FaCarSide />;
+    if (msg.includes("Permit")) return <FaIdCard />;
+    return null;
+  };
 
   return (
     <div className="vehicle-page">
@@ -322,10 +334,42 @@ const VehiclesList = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="alert-bell">
+          {/* <div className="alert-bell">
             <IoNotificationsOutline className="bell-icon" />
             {alerts.length > 0 && (
               <span className="alert-count">{alerts.length}</span>
+            )}
+          </div> */}
+          <div className="alert-wrapper" ref={panelRef}>
+            {/* Bell */}
+            <div
+              className="alert-bell"
+              onClick={() => setShowAlertPanel((s) => !s)}
+            >
+              <IoNotificationsOutline className="bell-icon" />
+
+              {alerts.length > 0 && (
+                <span className="alert-count">{alerts.length}</span>
+              )}
+            </div>
+
+            {/* Dropdown Panel */}
+            {showAlertPanel && (
+              <div className="alert-panel">
+                {alerts.length === 0 ? (
+                  <div className="alert-empty">No alerts 🎉</div>
+                ) : (
+                  alerts.map((a, i) => (
+                    <div className={`alert-item ${a.level}`} key={i}>
+                      <span className="alert-doc-icon">
+                        {getAlertIcon(a.msg)}
+                      </span>
+
+                      <span className="alert-text">{a.msg}</span>
+                    </div>
+                  ))
+                )}
+              </div>
             )}
           </div>
 
@@ -342,46 +386,49 @@ const VehiclesList = () => {
       {/* ================= FLEET SUMMARY ================= */}
 
       <div className="fleet-summary">
-        {["car", "van", "bus"].map((t) => (
-          <div className="fleet-card" key={t}>
-            <div className="fleet-icon">
-              {t === "car" ? (
-                <FaCarSide />
-              ) : t === "van" ? (
-                <FaShuttleVan />
-              ) : (
-                <FaBusAlt />
-              )}
+        {["car", "van", "bus"].map((t) => {
+          const s = getTypeStats(t);
+
+          return (
+            <div className="fleet-card premium" key={t}>
+              <div className={`fleet-icon ${t}`}>
+                {t === "car" ? (
+                  <FaCarSide />
+                ) : t === "van" ? (
+                  <FaShuttleVan />
+                ) : (
+                  <FaBusAlt />
+                )}
+              </div>
+
+              <div className="fleet-content">
+                <div className="fleet-title">{t.toUpperCase()}</div>
+
+                <div className="fleet-metrics">
+                  <div className="metric total">
+                    <span>Total</span>
+                    <strong>{s.total}</strong>
+                  </div>
+
+                  <div className="metric available">
+                    <span>Available</span>
+                    <strong>{s.available}</strong>
+                  </div>
+
+                  <div className="metric booked">
+                    <span>Booked</span>
+                    <strong>{s.booked}</strong>
+                  </div>
+
+                  <div className="metric maintenance">
+                    <span>Maintenance</span>
+                    <strong>{s.maintenance}</strong>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="fleet-title">{t.toUpperCase()}</div>
-              <div className="fleet-count">{stats[t]} Vehicles</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ===== TABLE CONTROLS ===== */}
-      <div className="table-controls">
-        <div className="entries-control">
-          <label>Show</label>
-
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setTablePage(1);
-            }}
-            className="entries-select"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-
-          <span>entries</span>
-        </div>
+          );
+        })}
       </div>
 
       {/* ===== PREMIUM TABLE ===== */}
@@ -473,83 +520,54 @@ const VehiclesList = () => {
         />
       )}
       {/* PAGINATION */}
-      {/* {totalPages > 1 && (
-        <div className="pagination-clean">
-          <button
-            className="page-btn"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(1)}
-            title="First"
+      {/* ===== TABLE CONTROLS ===== */}
+      {/* ===== TABLE CONTROLS ===== */}
+      {/* <div className="table-controls">
+        
+      </div> */}
+      <div className="table-controls">
+        <div className="entries-control">
+          <label>Show</label>
+
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setTablePage(1);
+            }}
+            className="entries-select"
           >
-            &lt;&lt;
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+
+          <span>entries</span>
+        </div>
+        <div className="pagination">
+          <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+            Prev
           </button>
 
-          <button
-            className="page-btn"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            title="Previous"
-          >
-            &lt;
-          </button>
-
-          <div className="page-numbers">
-            {getPageNumbers()[0] > 1 && (
-              <>
-                <button
-                  className="page-number"
-                  onClick={() => setCurrentPage(1)}
-                >
-                  1
-                </button>
-                <span className="dots">...</span>
-              </>
-            )}
-
-            {getPageNumbers().map((page) => (
-              <button
-                key={page}
-                className={`page-number ${
-                  currentPage === page ? "active" : ""
-                }`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-
-            {getPageNumbers().slice(-1)[0] < totalPages && (
-              <>
-                <span className="dots">...</span>
-                <button
-                  className="page-number"
-                  onClick={() => setCurrentPage(totalPages)}
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
-          </div>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={page === i + 1 ? "active" : ""}
+              onClick={() => setPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
 
           <button
-            className="page-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            title="Next"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
           >
-            &gt;
-          </button>
-
-          <button
-            className="page-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            title="Last"
-          >
-            &gt;&gt;
+            Next
           </button>
         </div>
-      )} */}
+      </div>
 
       {showDeleteModal && (
         <div className="confirm-modal-overlay">
