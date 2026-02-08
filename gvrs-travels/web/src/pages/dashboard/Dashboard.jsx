@@ -1,53 +1,93 @@
-import React from "react";
-import {
-  FaCar,
-  FaRupeeSign,
-  FaCalendarCheck,
-} from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaCar, FaRupeeSign, FaCalendarCheck } from "react-icons/fa";
 import "./dashboard.css";
 import RevenueChart from "../../components/RevenueChart";
 import BookingCalendar from "../../components/BookingCalendar";
+import { BOOKING_API, VEHICLE_API } from "../../config/api";
+import { useCountUp } from "../BookingsList/BookingsList";
 
 const Dashboard = () => {
+  const [totalBookings, setTotalBookings] = useState(0);
+  const animatedTotal = useCountUp(totalBookings);
+  const [vehicleCount, setVehicleCount] = useState(0);
+  const animatedVehicles = useCountUp(vehicleCount);
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const animatedEarnings = useCountUp(totalEarnings);
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const [bookingRes, vehicleRes] = await Promise.all([
+          fetch(BOOKING_API),
+          fetch(VEHICLE_API),
+        ]);
+
+        const bookings = await bookingRes.json();
+        const vehicles = await vehicleRes.json();
+
+        setTotalBookings(bookings.length);
+        setVehicleCount(vehicles.length);
+
+        // ⭐ SUM AMOUNT
+      const sum = bookings
+        .filter((b) => ["confirmed", "completed","cancelled"].includes(b.status))
+        .reduce((acc, b) => acc + parseFloat(b.amount || 0), 0);
+
+        setTotalEarnings(sum);
+      } catch (err) {
+        console.error("Dashboard fetch failed", err);
+      }
+    };
+
+    loadDashboard();
+  }, []);
+
   return (
     <div className="dashboard-content">
       <h1 className="page-title">Dashboard</h1>
 
       {/* STATS CARDS */}
-      <div className="stats-grid">
-        {/* TOTAL BOOKINGS */}
-        <div className="stat-card">
-          <div className="stat-icon-box blue">
+      <div className="kpi-grid">
+        {/* BOOKINGS */}
+        <div className="kpi-card elite blue">
+          <div className="card-glow"></div>
+
+          <div className="kpi-icon blue">
             <FaCalendarCheck />
           </div>
 
-          <div className="stat-details">
-            <p className="stat-title">Total Bookings</p>
-            <h2 className="stat-value">1,200</h2>
+          <div className="kpi-text">
+            <p className="kpi-label">Total Bookings</p>
+            <p className="kpi-value">{animatedTotal}</p>
           </div>
         </div>
 
         {/* VEHICLES */}
-        <div className="stat-card">
-          <div className="stat-icon-box green">
+
+        <div className="kpi-card elite green">
+          <div className="card-glow"></div>
+
+          <div className="kpi-icon green">
             <FaCar />
           </div>
 
-          <div className="stat-details">
-            <p className="stat-title">Vehicles</p>
-            <h2 className="stat-value">10</h2>
+          <div className="kpi-text">
+            <p className="kpi-label">Vehicles</p>
+            <p className="kpi-value">{animatedVehicles}</p>
           </div>
         </div>
 
         {/* EARNINGS */}
-        <div className="stat-card">
-          <div className="stat-icon-box orange">
+
+        <div className="kpi-card elite orange">
+          <div className="card-glow"></div>
+
+          <div className="kpi-icon orange">
             <FaRupeeSign />
           </div>
 
-          <div className="stat-details">
-            <p className="stat-title">Total Earnings</p>
-            <h2 className="stat-value">₹1,00,000</h2>
+          <div className="kpi-text">
+            <p className="kpi-label">Total Earnings</p>
+            <p className="kpi-value">₹{animatedEarnings}</p>
           </div>
         </div>
       </div>
@@ -69,8 +109,12 @@ const Dashboard = () => {
         <div className="card">
           <h3>Recent Activity</h3>
           <ul className="destination-list">
-            <li>Chennai → Bangalore <span>35%</span></li>
-            <li>Hyderabad → Goa <span>28%</span></li>
+            <li>
+              Chennai → Bangalore <span>35%</span>
+            </li>
+            <li>
+              Hyderabad → Goa <span>28%</span>
+            </li>
           </ul>
         </div>
 
@@ -98,7 +142,6 @@ const Dashboard = () => {
             <div className="trip-date">18 Jan</div>
           </div>
         </div>
-
       </div>
     </div>
   );
