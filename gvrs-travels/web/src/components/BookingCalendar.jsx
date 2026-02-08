@@ -1,72 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-
+import { BOOKING_API } from "../config/api";
+import {
+  FaIdCard,
+  FaUserTie,
+  FaCalendarAlt,
+  FaMoneyBillWave,
+  FaWhatsapp,
+} from "react-icons/fa";
 const BookingCalendar = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [selectedBookings, setSelectedBookings] = useState([]);
 
-  const [formData, setFormData] = useState({
-    driver: "",
-    pickup: "",
-    drop: "",
-  });
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const res = await fetch(BOOKING_API);
+        const data = await res.json();
 
-  const [events, setEvents] = useState([
-    {
-      id: "1",
-      title: "Chennai → Bangalore",
-      start: "2026-02-08T10:30:00",
-      end: "2026-02-08T14:30:00",
-      extendedProps: {
-        driver: "Ramesh",
-        pickup: "Chennai",
-        drop: "Bangalore",
-      },
-    },
-    {
-      id: "2",
-      title: "Hyderabad → Goa",
-      start: "2026-02-11T09:00:00",
-      end: "2026-02-11T18:00:00",
-      extendedProps: {
-        driver: "Suresh",
-        pickup: "Hyderabad",
-        drop: "Goa",
-      },
-    },
-  ]);
+        // ⭐ Convert API → Calendar format
+        const calendarEvents = data.map((b) => {
+          let color = "#94a3b8";
 
-  const [errors, setErrors] = useState({
-    driver: "",
-    pickup: "",
-    drop: "",
-  });
+          if (b.status === "confirmed") color = "#22c55e";
+          if (b.status === "pending") color = "#f59e0b";
+          if (b.status === "cancelled") color = "#ef4444";
+
+          return {
+            id: b.id.toString(),
+            title: `${b.pickup_location} → ${b.drop_location}`,
+            start: b.pickup_datetime,
+            end: b.drop_date || b.pickup_datetime,
+            color,
+            extendedProps: b, // ⭐ store full booking
+          };
+        });
+
+        setEvents(calendarEvents);
+      } catch (err) {
+        console.error("Calendar load failed", err);
+      }
+    };
+
+    loadBookings();
+  }, []);
 
   /* DATE CLICK → CREATE BOOKING */
   const handleDateClick = (info) => {
-    setSelectedDate(info.dateStr); // YYYY-MM-DD
-    setSelectedEventId(null);
-    setFormData({ driver: "", pickup: "", drop: "" });
+    const clicked = info.dateStr;
+
+    const matches = events
+      .map((e) => e.extendedProps)
+      .filter((b) => b.pickup_datetime?.startsWith(clicked));
+
+    setSelectedBookings(matches);
     setShowModal(true);
   };
 
   /* EVENT CLICK → EDIT BOOKING */
   const handleEventClick = (info) => {
-    const event = info.event;
-
-    setSelectedEventId(event.id);
-    setSelectedDate(event.startStr);
-
-    setFormData({
-      driver: event.extendedProps.driver || "",
-      pickup: event.extendedProps.pickup || "",
-      drop: event.extendedProps.drop || "",
-    });
-
+    setSelectedBookings([info.event.extendedProps]);
     setShowModal(true);
   };
 
@@ -75,7 +74,19 @@ const BookingCalendar = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [name]: "" }); // clear error
+  };
 
+  const formatPickupStyled = (dateStr) => {
+    const d = new Date(dateStr);
+
+    const date = d.toLocaleDateString("en-IN");
+    const time = d.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return { date, time };
   };
 
   /* SAVE / UPDATE BOOKING */
@@ -113,8 +124,8 @@ const BookingCalendar = () => {
                   drop: formData.drop,
                 },
               }
-            : event
-        )
+            : event,
+        ),
       );
     } else {
       // CREATE NEW EVENT
@@ -138,8 +149,7 @@ const BookingCalendar = () => {
     setFormData({ driver: "", pickup: "", drop: "" });
     setErrors({ driver: "", pickup: "", drop: "" });
   };
-
-
+  const isEmpty = selectedBookings.length === 0;
   return (
     <>
       {/* CALENDAR */}
@@ -160,68 +170,102 @@ const BookingCalendar = () => {
 
       {/* MODAL */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal booking-modal">
-            <div className="driver-modal-header">
-              <h3> {selectedEventId ? "Edit Booking" : "Create Booking"}</h3>
-            </div>
-            {/* <h3 className="modal-title">
-              {selectedEventId ? "Edit Booking" : "Create Booking"}
-            </h3> */}
+        <div className={`modal-overlay ${isEmpty ? "mini" : ""}`}>
+          <div className={`modal booking-modal ${isEmpty ? "mini" : ""}`}>
+            <h3 className={isEmpty ? "mini-title" : ""}>Trip Details</h3>
 
-            <p className="modal-date">
-              📅 {new Date(selectedDate).toDateString()}
-            </p>
+            {isEmpty ? (
+              <p className="mini-text">No trips for this date</p>
+            ) : (
+              selectedBookings.map((b) => {
+                const f = formatPickupStyled(b.pickup_datetime);
+                return (
+                  <div key={b.id} className="trip-elite">
+                    <div className="trip-elite-header">
+                      <div className="route">
+                        {b.pickup_location} → {b.drop_location}
+                      </div>
 
-            <div className="form-group">
-              <label>Driver Name</label>
-              <input
-                type="text"
-                name="driver"
-                placeholder="Enter driver name"
-                value={formData.driver}
-                onChange={handleChange}
-              />
-              {errors.driver && (
-                <span className="error-text">{errors.driver}</span>
-              )}
-            </div>
+                      <div className={`status ${b.status}`}>{b.status}</div>
+                    </div>
 
-            <div className="form-group">
-              <label>Pickup Location</label>
-              <input
-                type="text"
-                name="pickup"
-                placeholder="Enter pickup location"
-                value={formData.pickup}
-                onChange={handleChange}
-              />
-              {errors.pickup && (
-                <span className="error-text">{errors.pickup}</span>
-              )}
-            </div>
+                    <div className="timeline-bar" />
 
-            <div className="form-group">
-              <label>Drop Location</label>
-              <input
-                type="text"
-                name="drop"
-                placeholder="Enter drop location"
-                value={formData.drop}
-                onChange={handleChange}
-              />
-              {errors.drop && <span className="error-text">{errors.drop}</span>}
-            </div>
+                    <div className="trip-elite-grid">
+                      <div className="field">
+                        <FaIdCard />
+                        <div>
+                          <span>Booking ID</span>
+                          <strong>{b.booking_id}</strong>
+                        </div>
+                      </div>
+
+                      <div className="field driver">
+                        <div className="avatar">
+                          {(b.driver_name || "?")[0]}
+                        </div>
+                        <div>
+                          <span>Driver</span>
+                          <strong>{b.driver_name || "-"}</strong>
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <FaUserTie />
+                        <div>
+                          <span>Customer</span>
+                          <strong>{b.customer_name || "-"}</strong>
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <FaWhatsapp />
+                        <div>
+                          <span>Contact</span>
+                          <strong>{b.customer_phone || "-"}</strong>
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <FaCalendarAlt />
+                        <div>
+                          <span>Pickup</span>
+                          <strong>
+                            {f.date} - {f.time}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <FaMoneyBillWave />
+                        <div>
+                          <span>Amount</span>
+                          <strong>₹ {b.amount}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="trip-actions">
+                      <button
+                        className="wa-btn"
+                        onClick={() =>
+                          window.open(`https://wa.me/91${b.customer_phone}`)
+                        }
+                      >
+                        <FaWhatsapp /> Message
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
 
             <div className="modal-actions">
               <button
-                className="btn cancel"
+                className={isEmpty ? "mini-close-btn" : "mini-close-btn"}
                 onClick={() => setShowModal(false)}
               >
-                Cancel
-              </button>
-              <button className="btn save" onClick={handleSave}>
-                Save Booking
+                Close
               </button>
             </div>
           </div>

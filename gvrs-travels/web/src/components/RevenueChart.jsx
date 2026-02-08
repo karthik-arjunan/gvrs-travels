@@ -20,7 +20,7 @@ const RevenueChart = () => {
 
       // Only count real revenue
       const valid = bookings.filter((b) =>
-        ["confirmed", "completed"].includes(b.status),
+        ["confirmed", "completed", "cancelled"].includes(b.status),
       );
 
       // Prepare 12 months bucket

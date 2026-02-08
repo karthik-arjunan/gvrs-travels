@@ -500,6 +500,20 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
     );
   };
 
+  /* =========================
+   VALIDATE FUTURE DATETIME
+========================= */
+  const isPastDateTime = (dateTime) => {
+    const selected = new Date(dateTime);
+    const now = new Date();
+
+    // Round both to minute precision
+    selected.setSeconds(0, 0);
+    now.setSeconds(0, 0);
+
+    return selected < now;
+  };
+
   return (
     <div className="booking-page">
       <div className="modal-header">
@@ -531,7 +545,10 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
             <input
               type="text"
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
+              onChange={(e) => {
+                const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
+                setCustomerPhone(onlyNums);
+              }}
               placeholder="Enter contact number"
               maxLength={10}
             />
@@ -708,7 +725,16 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
                 type="datetime-local"
                 value={pickupDateTime}
                 min={getMinDateTime()}
-                onChange={(e) => setPickupDateTime(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (isPastDateTime(value)) {
+                    toast.error("Please select future time");
+                    return;
+                  }
+
+                  setPickupDateTime(value);
+                }}
               />
             </div>
 
@@ -717,6 +743,7 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
               <input
                 type="date"
                 value={dropDate}
+                min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setDropDate(e.target.value)}
               />
             </div>

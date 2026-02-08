@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaCar, FaRupeeSign, FaCalendarCheck } from "react-icons/fa";
 import "./dashboard.css";
 import RevenueChart from "../../components/RevenueChart";
@@ -13,6 +13,11 @@ const Dashboard = () => {
   const animatedVehicles = useCountUp(vehicleCount);
   const [totalEarnings, setTotalEarnings] = useState(0);
   const animatedEarnings = useCountUp(totalEarnings);
+  const [upcomingTrips, setUpcomingTrips] = useState([]);
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
+  const prevIdsRef = useRef([]);
+  const [highlighted, setHighlighted] = useState([]);
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -28,9 +33,11 @@ const Dashboard = () => {
         setVehicleCount(vehicles.length);
 
         // ⭐ SUM AMOUNT
-      const sum = bookings
-        .filter((b) => ["confirmed", "completed","cancelled"].includes(b.status))
-        .reduce((acc, b) => acc + parseFloat(b.amount || 0), 0);
+        const sum = bookings
+          .filter((b) =>
+            ["confirmed", "completed", "cancelled"].includes(b.status),
+          )
+          .reduce((acc, b) => acc + parseFloat(b.amount || 0), 0);
 
         setTotalEarnings(sum);
       } catch (err) {
@@ -40,6 +47,140 @@ const Dashboard = () => {
 
     loadDashboard();
   }, []);
+
+  useEffect(() => {
+    const loadUpcomingTrips = async () => {
+      try {
+        const res = await fetch(BOOKING_API);
+        const data = await res.json();
+
+        const now = new Date();
+        const statusPriority = {
+          confirmed: 0,
+          pending: 1,
+        };
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const getDateOnly = (dt) => {
+          const d = new Date(dt);
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        };
+
+        const upcoming = data
+          // ✅ future dates ONLY (ignore time)
+          .filter((b) => {
+            const tripDate = getDateOnly(b.pickup_datetime);
+            return tripDate >= today;
+          })
+
+          // ✅ remove cancelled
+          .filter((b) => ["confirmed", "pending"].includes(b.status))
+
+          // ✅ sort
+          .sort((a, b) => {
+            const statusDiff =
+              statusPriority[a.status] - statusPriority[b.status];
+            if (statusDiff !== 0) return statusDiff;
+
+            return (
+              getDateOnly(a.pickup_datetime) - getDateOnly(b.pickup_datetime)
+            );
+          })
+
+          .slice(0, 5);
+
+        setUpcomingTrips(upcoming);
+      } catch (err) {
+        console.error("Upcoming trips load failed", err);
+      }
+    };
+
+    loadUpcomingTrips();
+  }, []);
+
+  useEffect(() => {
+    fetch(BOOKING_API)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+
+        const sorted = [...data]
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 5); // show last 5
+
+        setRecentBookings(sorted);
+      })
+      .catch((err) => console.error("Recent Activity Error:", err));
+  }, []);
+
+  const loadRecentBookings = () => {
+    setLoadingRecent(true);
+
+    fetch(BOOKING_API)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+
+        const sorted = [...data]
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 5);
+
+        // ⭐ Detect new IDs
+        const newIds = sorted
+          .map((b) => b.id)
+          .filter((id) => !prevIdsRef.current.includes(id));
+
+        if (newIds.length) {
+          setHighlighted(newIds);
+
+          // remove highlight after animation
+          setTimeout(() => setHighlighted([]), 3000);
+        }
+
+        prevIdsRef.current = sorted.map((b) => b.id);
+
+        setRecentBookings(sorted);
+        setLoadingRecent(false);
+      })
+      .catch(() => setLoadingRecent(false));
+  };
+
+  useEffect(() => {
+    loadRecentBookings();
+
+    // ⭐ Live refresh every 10 seconds
+    const interval = setInterval(loadRecentBookings, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatShortDate = (dateStr) => {
+    const d = new Date(dateStr);
+
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+    });
+  };
+
+  const getRelativeTime = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+    const intervals = [
+      { label: "day", sec: 86400 },
+      { label: "hour", sec: 3600 },
+      { label: "min", sec: 60 },
+    ];
+
+    for (let i of intervals) {
+      const count = Math.floor(seconds / i.sec);
+      if (count > 0) return `${count} ${i.label}${count > 1 ? "s" : ""} ago`;
+    }
+
+    return "Just now";
+  };
 
   return (
     <div className="dashboard-content">
@@ -106,41 +247,55 @@ const Dashboard = () => {
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="card">
-          <h3>Recent Activity</h3>
-          <ul className="destination-list">
-            <li>
-              Chennai → Bangalore <span>35%</span>
-            </li>
-            <li>
-              Hyderabad → Goa <span>28%</span>
-            </li>
-          </ul>
+
+       
+        <div className="recent-card">
+          <h3 className="recent-title">Recent Activity</h3>
+
+          {recentBookings.map((b) => (
+            <div key={b.id} className={`elite-card status-activity-${b.status}`}>
+              {/* Avatar */}
+              <div className="elite-avatar">{(b.driver_name || "D")[0]}</div>
+
+              {/* Content */}
+              <div className="elite-content">
+                <div className="elite-route">
+                  {b.pickup_location} → {b.drop_location}
+                </div>
+
+                <div className="elite-meta">
+                  {getRelativeTime(b.created_at)}
+                </div>
+              </div>
+
+              {/* Right Accent Dot */}
+              <div className="elite-dot" />
+            </div>
+          ))}
         </div>
 
-        <div className="card upcoming-card">
+        <div className="upcoming-card premium">
           <h3>Upcoming Trips</h3>
 
-          <div className="trip-item">
-            <div className="trip-route">
-              Chennai <span className="arrow">→</span> Coimbatore
-            </div>
-            <div className="trip-date">12 Jan</div>
-          </div>
+          {upcomingTrips.map((trip) => (
+            <div
+              key={trip.id}
+              className={`trip-row premium trip-card ${trip.status}`}
+            >
+              {/* <div key={trip.id} className="trip-row premium "> */}
+              <div className="trip-left-accent" />
 
-          <div className="trip-item">
-            <div className="trip-route">
-              Bangalore <span className="arrow">→</span> Mysore
-            </div>
-            <div className="trip-date">15 Jan</div>
-          </div>
+              <div className="route">
+                <span className="from">{trip.pickup_location}</span>
+                <span className="arrow">→</span>
+                <span className="to">{trip.drop_location}</span>
+              </div>
 
-          <div className="trip-item">
-            <div className="trip-route">
-              Madurai <span className="arrow">→</span> Trichy
+              <div className="trip-date">
+                {formatShortDate(trip.pickup_datetime)}
+              </div>
             </div>
-            <div className="trip-date">18 Jan</div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
