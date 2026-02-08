@@ -547,7 +547,7 @@ const VehiclesList = () => {
         </div>
         <div className="pagination">
           <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-            Prev
+            ‹
           </button>
 
           {[...Array(totalPages)].map((_, i) => (
@@ -564,7 +564,7 @@ const VehiclesList = () => {
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next
+            ›
           </button>
         </div>
       </div>

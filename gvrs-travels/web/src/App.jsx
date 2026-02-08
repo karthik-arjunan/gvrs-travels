@@ -6,7 +6,7 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./layouts/ProtectedRoute";
 import DriverDetails from "./pages/Drivers/DriverDetails";
-import Bookings from "./pages/Bookings/Bookings";
+import Bookings from "./pages/CreateBookings/CreateBookings";
 import BookingsList from "./pages/BookingsList/BookingsList";
 import VehiclesList from "./pages/Vehicle/VehicleList";
 function App() {

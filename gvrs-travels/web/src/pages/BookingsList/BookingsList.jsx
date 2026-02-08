@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import "./BookingsList.css";
-import Bookings from "../Bookings/Bookings";
+import Bookings from "../CreateBookings/CreateBookings";
+import { toast } from "react-toastify";
+import { BOOKING_API } from "../../config/api";
 import {
   FaPlaneDeparture,
   FaCheckCircle,
@@ -12,87 +14,21 @@ import {
   FaCalendarCheck,
 } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-
+import LogoLoader from "../LogoLoader/LogoLoader";
 /* =========================
    SUMMARY DATA
 ========================= */
-const summary = [
-  {
-    label: "Total Trips",
-    count: 15,
-    icon: <FaPlaneDeparture />,
-    type: "total",
-  },
-  { label: "Confirmed", count: 8, icon: <FaCheckCircle />, type: "confirmed" },
-  { label: "Pending", count: 4, icon: <FaClock />, type: "pending" },
-  { label: "Cancelled", count: 3, icon: <FaTimesCircle />, type: "cancelled" },
-];
-
-/* =========================
-   BOOKINGS DATA
-========================= */
-const bookings = [
-  {
-    id: "GVRS-2026-001",
-    place: "Chennai",
-    country: "Trichy",
-    type: "Car",
-    time: "11.00AM",
-    date: "Feb 15 – Feb 22, 2026",
-    price: 2450,
-    status: "confirmed",
-  },
-  {
-    id: "GVRS-2026-002",
-    place: "Madurai",
-    country: "Chennai",
-    type: "Car",
-    time: "11.00AM",
-    date: "Mar 10 – Mar 15, 2026",
-    price: 1890,
-    status: "pending",
-  },
-  {
-    id: "GVRS-2026-003",
-    place: "Trichy",
-    country: "Chennai",
-    type: "Van",
-    time: "10.00AM",
-    date: "Apr 1 – Apr 8, 2026",
-    price: 1650,
-    status: "confirmed",
-  },
-  {
-    id: "GVRS-2026-004",
-    place: "Salem",
-    country: "Trichy",
-    type: "Car",
-    time: "8.00AM",
-    date: "May 12 – May 18, 2026",
-    price: 2100,
-    status: "cancelled",
-  },
-  {
-    id: "GVRS-2026-005",
-    place: "Trichy",
-    country: "Thanjavur",
-    type: "Car",
-    time: "5.00AM",
-    date: "May 12 – May 18, 2026",
-    price: 2100,
-    status: "completed",
-  },
-  {
-    id: "GVRS-2026-006",
-    place: "Trichy",
-    country: "Coimbatore",
-    type: "Car",
-    time: "11.00PM",
-    date: "May 12 – May 18, 2026",
-    price: 2100,
-    status: "completed",
-  },
-];
+// const summary = [
+//   {
+//     label: "Total Trips",
+//     count: 15,
+//     icon: <FaPlaneDeparture />,
+//     type: "total",
+//   },
+//   { label: "Confirmed", count: 8, icon: <FaCheckCircle />, type: "confirmed" },
+//   { label: "Pending", count: 4, icon: <FaClock />, type: "pending" },
+//   { label: "Cancelled", count: 3, icon: <FaTimesCircle />, type: "cancelled" },
+// ];
 
 const ITEMS_PER_PAGE = 6;
 
@@ -101,12 +37,43 @@ const BookingsList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [bookings, setBookings] = useState([]);
+
+  const summary = useMemo(() => {
+    return [
+      {
+        label: "Total Trips",
+        count: bookings.length,
+        icon: <FaPlaneDeparture />,
+        type: "total",
+      },
+      {
+        label: "Confirmed",
+        count: bookings.filter((b) => b.status === "confirmed").length,
+        icon: <FaCheckCircle />,
+        type: "confirmed",
+      },
+      {
+        label: "Pending",
+        count: bookings.filter((b) => b.status === "pending").length,
+        icon: <FaClock />,
+        type: "pending",
+      },
+      {
+        label: "Cancelled",
+        count: bookings.filter((b) => b.status === "cancelled").length,
+        icon: <FaTimesCircle />,
+        type: "cancelled",
+      },
+    ];
+  }, [bookings]);
 
   const filteredBookings = useMemo(() => {
     return activeTab === "all"
       ? bookings
       : bookings.filter((b) => b.status === activeTab);
-  }, [activeTab]);
+  }, [activeTab, bookings]);
 
   useEffect(() => setCurrentPage(1), [activeTab]);
 
@@ -116,6 +83,25 @@ const BookingsList = () => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(BOOKING_API);
+      const data = await res.json();
+
+      setBookings(data);
+    } catch (err) {
+      toast.error("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   /* =========================
      WHATSAPP MESSAGE
@@ -151,6 +137,51 @@ Please be on time.
     setShowModal(true);
   };
 
+  const formatTripDate = (pickup, drop) => {
+    if (!pickup) return "";
+
+    const p = new Date(pickup);
+    const d = drop ? new Date(drop) : null;
+
+    const formatShort = (date) =>
+      date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+      });
+
+    const formatFull = (date) =>
+      date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+
+    // Only pickup
+    if (!d) return formatFull(p);
+
+    // Same year → show compact premium style
+    if (p.getFullYear() === d.getFullYear()) {
+      return `${formatShort(p)} – ${formatFull(d)}`;
+    }
+
+    // Different year (rare case)
+    return `${formatFull(p)} – ${formatFull(d)}`;
+  };
+
+  const getVisiblePages = () => {
+    const range = 2; // how many around current
+    let start = Math.max(1, currentPage - range);
+    let end = Math.min(totalPages, currentPage + range);
+
+    let pages = [];
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="booking-page">
       {/* HEADER */}
@@ -160,7 +191,7 @@ Please be on time.
           <FaPlus /> Add Booking
         </button>
       </div>
-
+      {loading && <LogoLoader />}
       {/* SUMMARY */}
       <div className="summary-grid">
         {summary.map((item, i) => (
@@ -174,7 +205,7 @@ Please be on time.
         ))}
       </div>
       {/* TABS */}
-      <div className="booking-tabs">
+      {/* <div className="booking-tabs">
         {["all", "confirmed", "pending", "cancelled"].map((tab) => (
           <button
             key={tab}
@@ -184,78 +215,144 @@ Please be on time.
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
+      </div> */}
+
+      <div className="tabs-pagination-row">
+        {/* LEFT — Tabs */}
+        <div className="booking-tabs">
+          {["all", "confirmed", "pending", "cancelled"].map((tab) => (
+            <button
+              key={tab}
+              className={`tab-btn ${activeTab === tab ? "active" : ""}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* RIGHT — Pagination */}
+        {totalPages > 1 && (
+          <div className="card-pagination">
+            <button
+              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage === 1}
+            >
+              ‹
+            </button>
+
+            {getVisiblePages().map((p) => (
+              <button
+                key={p}
+                className={currentPage === p ? "active" : ""}
+                onClick={() => setCurrentPage(p)}
+              >
+                {p}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={currentPage === totalPages}
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
 
       {/* BOOKINGS GRID */}
+      {/* BOOKINGS GRID */}
       <div className="booking-list">
-        {paginatedBookings.map((booking) => (
-          <div
-            key={booking.id}
-            className={`bookings-card ${booking.status} ${
-              ["confirmed", "pending"].includes(booking.status)
-                ? "has-whatsapp"
-                : ""
-            }`}
-          >
-            <div className="booking-title-row">
-              <h3 className="booking-title">
-                {booking.place} → {booking.country}
-              </h3>
-              {/* STATUS + EDIT */}
-              <div className="booking-actions">
-                <span className="action-icons">
-                  {/* WHATSAPP */}
-                  {["confirmed", "pending"].includes(booking.status) && (
-                    <button
-                      className="whatsapp-pill"
-                      title="Send WhatsApp to Driver"
-                      onClick={() =>
-                        sendWhatsAppToDriver(booking.driverPhone, booking)
-                      }
-                    >
-                      <FaWhatsapp />
+        {paginatedBookings.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">📭</div>
+            <h3>No bookings found</h3>
+            <p>No {activeTab} bookings available</p>
+          </div>
+        ) : (
+          paginatedBookings.map((booking) => (
+            <div
+              key={booking.id}
+              className={`bookings-card ${booking.status} ${
+                ["confirmed", "pending"].includes(booking.status)
+                  ? "has-whatsapp"
+                  : ""
+              }`}
+            >
+              <div className="booking-title-row">
+                <h3 className="booking-title">
+                  {booking.pickup_location} → {booking.drop_location}
+                </h3>
+
+                <div className="booking-actions">
+                  <span className="action-icons">
+                    {["confirmed", "pending"].includes(booking.status) && (
+                      <button
+                        className="whatsapp-pill"
+                        onClick={() =>
+                          sendWhatsAppToDriver(booking.driverPhone, booking)
+                        }
+                      >
+                        <FaWhatsapp />
+                      </button>
+                    )}
+
+                    <button className="icon-btn edit">
+                      <MdEdit />
                     </button>
-                  )}
-                  <button className="icon-btn edit" title="Edit booking">
-                    <MdEdit />
-                  </button>
-                  <button className="icon-btn delete" title="Delete booking">
-                    <FaTrash />
-                  </button>
+
+                    <button className="icon-btn delete">
+                      <FaTrash />
+                    </button>
+                  </span>
+                </div>
+              </div>
+
+              <div className="booking-info">
+                <div>
+                  <span className="label">Vehicle Type</span>
+                  <span className="value">
+                    {booking.vehicle_type
+                      ? booking.vehicle_type.charAt(0).toUpperCase() +
+                        booking.vehicle_type.slice(1)
+                      : "-"}
+                  </span>
+                </div>
+                <div>
+                  <span className="label">Vehicle Number</span>
+                  <span className="value">{booking.vehicle_number}</span>
+                </div>
+                <div>
+                  <span className="label">Time</span>
+                  <span className="value">
+                    {new Date(booking.pickup_datetime).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="booking-date">
+                <span>
+                  <FaCalendarCheck />
+                  {formatTripDate(booking.pickup_datetime, booking.drop_date)}
+                </span>
+
+                <span className={`booking-status ${booking.status}`}>
+                  {booking.status}
                 </span>
               </div>
-            </div>
 
-            <div className="booking-info">
-              <div>
-                <span className="label">Vehicle</span>
-                <span className="value">{booking.type}</span>
-              </div>
-              <div>
-                <span className="label">Time</span>
-                <span className="value">{booking.time}</span>
+              <div className="booking-footer">
+                <div className="booking-id-block">
+                  <span className="label">Booking ID</span>
+                  <span className="value">{booking.booking_id}</span>
+                </div>
+
+                <div className="price">₹{booking.amount}</div>
               </div>
             </div>
-
-            <div className="booking-date">
-              <span>
-                <FaCalendarCheck /> {booking.date}
-              </span>
-
-              <span className={`booking-status ${booking.status}`}>
-                {booking.status}
-              </span>
-            </div>
-
-            <div className="booking-footer">
-              <div>
-                <span className="label">Booking ID</span>
-                <span className="value">{booking.id}</span>
-              </div>
-              <div className="price">₹{booking.price}</div>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* MODAL */}
@@ -269,6 +366,40 @@ Please be on time.
           </div>
         </div>
       )}
+      {/* PAGINATION */}
+      {/* {totalPages > 1 && (
+        <div className="pagination-wrapper">
+          <button
+            className="pg-btn nav"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+          >
+            ‹
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => {
+            const page = i + 1;
+
+            return (
+              <button
+                key={page}
+                className={`pg-btn ${currentPage === page ? "active" : ""}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+          <button
+            className="pg-btn nav"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+          >
+            ›
+          </button>
+        </div>
+      )} */}
     </div>
   );
 };

@@ -161,3 +161,11 @@ button.btn.cancel:hover {
   box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
   background: #dc2626;
 }
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  cursor: pointer;
+}

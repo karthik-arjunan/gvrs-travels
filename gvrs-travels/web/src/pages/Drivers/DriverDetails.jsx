@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { API_BASE_URL, DRIVER_API } from "../../config/api";
 import { FaCheckCircle, FaRoute, FaTrash } from "react-icons/fa";
 import Cropper from "react-easy-crop";
-
+import LogoLoader from "../LogoLoader/LogoLoader";
 /* =========================
    EMPTY DRIVER TEMPLATE
 ========================= */
@@ -25,6 +25,7 @@ const emptyDriver = {
 };
 
 const DriverDetails = () => {
+  const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingDriver, setEditingDriver] = useState(null);
   const [newDriver, setNewDriver] = useState(emptyDriver);
@@ -36,6 +37,14 @@ const DriverDetails = () => {
   const [search, setSearch] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState(null);
+  const [itemsPerPage, setItemsPerPage] = useState(7);
+  const [loading, setLoading] = useState(false);
+  const filtered = drivers;
+  /* TABLE PAGINATION */
+  const last = page * itemsPerPage;
+  const first = last - itemsPerPage;
+  const tableData = filtered.slice(first, last);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
   /* =========================
 
      HANDLERS
@@ -88,13 +97,15 @@ const DriverDetails = () => {
 
   const fetchDrivers = async () => {
     try {
+      setLoading(true);
       const res = await fetch(DRIVER_API);
 
       const data = await res.json();
-
       setDrivers(data);
     } catch (err) {
       toast.error("Failed to load drivers");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -295,39 +306,14 @@ const DriverDetails = () => {
   const indexOfFirst = indexOfLast - cardsPerPage;
   const currentDrivers = filteredDrivers.slice(indexOfFirst, indexOfLast);
 
-  const totalPages = Math.ceil(filteredDrivers.length / cardsPerPage);
-
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const [year, month, day] = dateStr.split("-");
     return `${day}-${month}-${year}`;
   };
 
-  const getPageNumbers = () => {
-    const pages = [];
-    let start = Math.max(1, currentPage - 2);
-    let end = Math.min(totalPages, currentPage + 2);
-
-    if (currentPage <= 3) {
-      start = 1;
-      end = Math.min(5, totalPages);
-    }
-
-    if (currentPage >= totalPages - 2) {
-      start = Math.max(1, totalPages - 4);
-      end = totalPages;
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  };
-
   const handleDeleteDriver = async (driver) => {
-    if (!window.confirm(`Delete ${driver.name}?`)) return;
-
+    if (!driver) return;
     try {
       const res = await fetch(`${DRIVER_API}${driver.id}/`, {
         method: "DELETE",
@@ -336,6 +322,8 @@ const DriverDetails = () => {
       if (!res.ok) throw new Error("Delete failed");
 
       toast.success("Driver deleted successfully");
+      setShowDeleteModal(false);
+      setDriverToDelete(null);
       fetchDrivers();
     } catch (err) {
       toast.error("Failed to delete driver");
@@ -374,7 +362,7 @@ const DriverDetails = () => {
           </button>
         </div>
       </div>
-
+      {loading && <LogoLoader />}
       {/* DRIVER CARDS */}
       <div className="licence-grid">
         {currentDrivers.map((d) => (
@@ -620,89 +608,36 @@ const DriverDetails = () => {
         </div>
       )}
       {/* ULTRA PREMIUM PAGINATION */}
-      {totalPages > 1 && (
-        <div className="pagination-clean">
-          <button
-            className="page-btn"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(1)}
-            title="First"
-          >
-            &lt;&lt;
+      <div className="pagination-container">
+        <div className="pagination">
+          <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+            ‹
           </button>
 
-          <button
-            className="page-btn"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            title="Previous"
-          >
-            &lt;
-          </button>
-
-          <div className="page-numbers">
-            {getPageNumbers()[0] > 1 && (
-              <>
-                <button
-                  className="page-number"
-                  onClick={() => setCurrentPage(1)}
-                >
-                  1
-                </button>
-                <span className="dots">...</span>
-              </>
-            )}
-
-            {getPageNumbers().map((page) => (
-              <button
-                key={page}
-                className={`page-number ${currentPage === page ? "active" : ""}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-
-            {getPageNumbers().slice(-1)[0] < totalPages && (
-              <>
-                <span className="dots">...</span>
-                <button
-                  className="page-number"
-                  onClick={() => setCurrentPage(totalPages)}
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
-          </div>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={page === i + 1 ? "active" : ""}
+              onClick={() => setPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
 
           <button
-            className="page-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            title="Next"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
           >
-            &gt;
-          </button>
-
-          <button
-            className="page-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            title="Last"
-          >
-            &gt;&gt;
+            ›
           </button>
         </div>
-      )}
+      </div>
+
       {showDeleteModal && (
         <div className="confirm-modal-overlay">
           <div className="confirm-modal">
-            <h3>Delete Vehicle?</h3>
-            <p>
-              Are you sure you want to delete
-              <strong> {driverToDelete?.brand}</strong> ?
-            </p>
+            <h3>Delete Driver?</h3>
+            <strong className="driver-name">{driverToDelete?.name}</strong>
 
             <div className="confirm-actions">
               <button
@@ -712,7 +647,10 @@ const DriverDetails = () => {
                 Cancel
               </button>
 
-              <button className="btn danger" onClick={handleDeleteDriver}>
+              <button
+                className="btn danger"
+                onClick={() => handleDeleteDriver(driverToDelete)}
+              >
                 Delete
               </button>
             </div>
