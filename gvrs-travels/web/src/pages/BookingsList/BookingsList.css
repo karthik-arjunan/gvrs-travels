@@ -57,6 +57,11 @@
   opacity: 1;
 }
 
+.summary-card:hover::after {
+  width: 6px;
+  transition: 0.2s ease;
+}
+
 /* ================= ICON BADGE ================= */
 .summary-icon {
   width: 52px;
@@ -104,6 +109,17 @@
   color: #3b82f6;
 }
 
+.summary-card.total::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+
+  background: linear-gradient(to bottom, #60a5fa, #2563eb);
+}
+
 /* CONFIRMED */
 .summary-card.confirmed {
   border-left: 4px solid #22c55e;
@@ -117,6 +133,17 @@
   color: #22c55e;
 }
 
+.summary-card.confirmed::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+
+  background: linear-gradient(to bottom, #4ade80, #16a34a);
+}
+
 /* PENDING */
 .summary-card.pending {
   border-left: 4px solid #f97316;
@@ -128,6 +155,17 @@
   color: #f97316;
 }
 
+.summary-card.pending::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+
+  background: linear-gradient(to bottom, #fb923c, #ea580c);
+}
+
 /* CANCELLED */
 .summary-card.cancelled {
   border-left: 4px solid #ef4444;
@@ -137,6 +175,17 @@
 }
 .summary-card.cancelled .summary-icon {
   color: #ef4444;
+}
+
+.summary-card.cancelled::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+
+  background: linear-gradient(to bottom, #f87171, #dc2626);
 }
 
 /* =========================

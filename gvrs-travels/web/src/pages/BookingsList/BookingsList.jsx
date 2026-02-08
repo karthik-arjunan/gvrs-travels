@@ -15,23 +15,31 @@ import {
 } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import LogoLoader from "../LogoLoader/LogoLoader";
-/* =========================
-   SUMMARY DATA
-========================= */
-// const summary = [
-//   {
-//     label: "Total Trips",
-//     count: 15,
-//     icon: <FaPlaneDeparture />,
-//     type: "total",
-//   },
-//   { label: "Confirmed", count: 8, icon: <FaCheckCircle />, type: "confirmed" },
-//   { label: "Pending", count: 4, icon: <FaClock />, type: "pending" },
-//   { label: "Cancelled", count: 3, icon: <FaTimesCircle />, type: "cancelled" },
-// ];
 
 const ITEMS_PER_PAGE = 6;
+export const useCountUp = (end, duration = 800) => {
+  const [value, setValue] = useState(0);
 
+  useEffect(() => {
+    let start = 0;
+    const increment = end / (duration / 16);
+
+    const timer = setInterval(() => {
+      start += increment;
+
+      if (start >= end) {
+        setValue(end);
+        clearInterval(timer);
+      } else {
+        setValue(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [end, duration]);
+
+  return value;
+};
 const BookingsList = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -220,7 +228,7 @@ const BookingsList = () => {
       {loading && <LogoLoader />}
       {/* SUMMARY */}
       <div className="summary-grid">
-        {summary.map((item, i) => (
+        {/* {summary.map((item, i) => (
           <div key={i} className={`summary-card ${item.type}`}>
             <div className="summary-icon">{item.icon}</div>
             <div>
@@ -228,7 +236,21 @@ const BookingsList = () => {
               <p>{item.label}</p>
             </div>
           </div>
-        ))}
+        ))} */}
+        {summary.map((item, i) => {
+          const animated = useCountUp(item.count);
+
+          return (
+            <div key={i} className={`summary-card ${item.type}`}>
+              <div className="summary-icon">{item.icon}</div>
+
+              <div>
+                <h2>{animated}</h2>
+                <p>{item.label}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
       {/* TABS */}
 
