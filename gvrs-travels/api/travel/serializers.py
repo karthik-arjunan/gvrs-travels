@@ -22,6 +22,15 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    driver_name = serializers.CharField(
+        source='driver.name',
+        read_only=True
+    )
+    
+    contact_number = serializers.CharField(
+        source='driver.contact_number',
+        read_only=True
+    )
     class Meta:
         model = Bookings
         fields = "__all__"

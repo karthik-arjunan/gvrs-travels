@@ -102,7 +102,24 @@ const BookingsList = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+  // ⭐ Custom Date Formatter
+  const formatPickup = (date) => {
+    if (!date) return "-";
 
+    const d = new Date(date);
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    const time = d.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return `${day}/${month}/${year} ${time}`;
+  };
   /* =========================
      WHATSAPP MESSAGE
   ========================= */
@@ -110,21 +127,30 @@ const BookingsList = () => {
     if (!driverPhone) return;
 
     const message = `
-🚘 *Trip Confirmed – GVRS Travels*
+    ✨ *GVRS TRAVELS — Trip Confirmed*
+      ━━━━━━━━━━━━━━━━━
+    🆔 *Booking ID*
+    ${booking.booking_id}
 
-📘 Booking ID: ${booking.id}
-📍 Route: ${booking.place} → ${booking.country}
-📅 Date: ${booking.date}
-⏰ Time: ${booking.time}
+    👤 *Customer Name*
+    ${booking.customer_name}
 
-Please be on time.
-— *GVRS Travels*
-`;
+    📞 *Customer Contact*
+    ${booking.customer_phone || "-"}
 
-    window.open(
-      `https://wa.me/91${driverPhone}?text=${encodeURIComponent(message)}`,
-      "_blank",
-    );
+  📍 *Route*
+  ${booking.pickup_location} ➜ ${booking.drop_location}
+
+  🗓 *Pickup Date & Time*
+  ${formatPickup(booking.pickup_datetime)}
+      ━━━━━━━━━━━━━━━━━
+
+    Please be on time  
+    🙏 *GVRS Travels*
+      `;
+    const cleanPhone = driverPhone.replace(/\D/g, "");
+    const url = `https://api.whatsapp.com/send/?phone=91${cleanPhone}&text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
   };
 
   const openCreate = () => {
@@ -205,17 +231,6 @@ Please be on time.
         ))}
       </div>
       {/* TABS */}
-      {/* <div className="booking-tabs">
-        {["all", "confirmed", "pending", "cancelled"].map((tab) => (
-          <button
-            key={tab}
-            className={`tab-btn ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div> */}
 
       <div className="tabs-pagination-row">
         {/* LEFT — Tabs */}
@@ -262,7 +277,6 @@ Please be on time.
       </div>
 
       {/* BOOKINGS GRID */}
-      {/* BOOKINGS GRID */}
       <div className="booking-list">
         {paginatedBookings.length === 0 ? (
           <div className="empty-state">
@@ -275,9 +289,7 @@ Please be on time.
             <div
               key={booking.id}
               className={`bookings-card ${booking.status} ${
-                ["confirmed", "pending"].includes(booking.status)
-                  ? "has-whatsapp"
-                  : ""
+                ["confirmed"].includes(booking.status) ? "has-whatsapp" : ""
               }`}
             >
               <div className="booking-title-row">
@@ -287,24 +299,27 @@ Please be on time.
 
                 <div className="booking-actions">
                   <span className="action-icons">
-                    {["confirmed", "pending"].includes(booking.status) && (
+                    {["confirmed"].includes(booking.status) && (
                       <button
                         className="whatsapp-pill"
                         onClick={() =>
-                          sendWhatsAppToDriver(booking.driverPhone, booking)
+                          sendWhatsAppToDriver(booking.contact_number, booking)
                         }
                       >
                         <FaWhatsapp />
                       </button>
                     )}
 
-                    <button className="icon-btn edit">
+                    <button
+                      className="icon-btn edit"
+                      onClick={() => openEdit(booking)}
+                    >
                       <MdEdit />
                     </button>
 
-                    <button className="icon-btn delete">
+                    {/* <button className="icon-btn delete">
                       <FaTrash />
-                    </button>
+                    </button> */}
                   </span>
                 </div>
               </div>
@@ -362,6 +377,7 @@ Please be on time.
             <Bookings
               onClose={() => setShowModal(false)}
               editingBooking={editingBooking}
+              refreshBookings={fetchBookings}
             />
           </div>
         </div>

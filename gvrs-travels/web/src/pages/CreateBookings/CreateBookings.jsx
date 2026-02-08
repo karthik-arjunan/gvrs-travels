@@ -4,7 +4,7 @@ import { FaCar, FaShuttleVan } from "react-icons/fa";
 import { DRIVER_API, VEHICLE_API, BOOKING_API } from "../../config/api";
 import Select, { components } from "react-select";
 import { toast } from "react-toastify";
-const Bookings = ({ onClose, editingBooking }) => {
+const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
   const whatsappTabRef = useRef(null);
   const [vehicleType, setVehicleType] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -24,7 +24,7 @@ const Bookings = ({ onClose, editingBooking }) => {
   const [status, setStatus] = useState("pending");
   const [driverId, setDriverId] = useState(null);
   const [vehicleId, setVehicleId] = useState(null);
-
+  const [originalStatus, setOriginalStatus] = useState(null);
   const vehicleOptions = availableVehicles.map((v) => ({
     value: v.id, // 🔥 vehicle ID
     label: v.vehicle_number, // display text
@@ -101,11 +101,51 @@ const Bookings = ({ onClose, editingBooking }) => {
     amount,
   ];
 
+  useEffect(() => {
+    if (!editingBooking) {
+      setStatus("pending");
+    }
+  }, [editingBooking]);
+
+  useEffect(() => {
+    if (editingBooking) {
+      setCustomerName(editingBooking.customer_name);
+      setCustomerPhone(editingBooking.customer_phone);
+      setPickup(editingBooking.pickup_location);
+      setDrop(editingBooking.drop_location);
+      // 🔥 Resolve DRIVER from ID
+      const driverObj = drivers.find((d) => d.id === editingBooking.driver);
+
+      if (driverObj) {
+        setDriverId(driverObj.id);
+        setDriverName(driverObj.name);
+        setDriverPhone(driverObj.contact_number);
+      }
+
+      // 🔥 Resolve VEHICLE from ID
+      const vehicleObj = vehicles.find((v) => v.id === editingBooking.vehicle);
+
+      if (vehicleObj) {
+        setVehicleType(vehicleObj.vehicle_type);
+        setVehicleId(vehicleObj.id);
+        setRegisterNumber(vehicleObj.vehicle_number);
+
+        // IMPORTANT → load dropdown options
+        setAvailableVehicles(
+          vehicles.filter((v) => v.vehicle_type === vehicleObj.vehicle_type),
+        );
+      }
+      setPickupDateTime(toDateTimeLocal(editingBooking.pickup_datetime));
+      setDropDate(editingBooking.drop_date);
+      setAmount(editingBooking.amount);
+      setOriginalStatus(editingBooking.status);
+    }
+  }, [editingBooking, vehicles]);
+
   /* =========================
      CREATE BOOKING
   ========================= */
   const sendWhatsAppToCustomer = (phone, booking) => {
-    console.log(booking);
     if (!phone) return;
 
     // ⭐ Custom Date Formatter
@@ -150,7 +190,7 @@ const Bookings = ({ onClose, editingBooking }) => {
       📍 *Route*
       ${booking.pickup_location} ➜ ${booking.drop_location}
 
-      🗓 *Pickup*
+      🗓 *Pickup Date & Time*
       ${formatPickup(booking.pickup_datetime)}
 
       💰 *Fare*
@@ -163,17 +203,8 @@ const Bookings = ({ onClose, editingBooking }) => {
       `;
 
     const cleanPhone = phone.replace(/\D/g, "");
-
     const url = `https://api.whatsapp.com/send/?phone=91${cleanPhone}&text=${encodeURIComponent(message)}`;
-
-      // ⭐ SINGLE TAB REUSE
-      if (!whatsappTabRef.current || whatsappTabRef.current.closed) {
-        whatsappTabRef.current = window.open(url, "_blank");
-      } else {
-        whatsappTabRef.current.location.replace(url);
-        whatsappTabRef.current.focus();
-      }
-    // window.open(url, "GVRS_WHATSAPP_TAB");
+    window.open(url, "_blank");
   };
 
   const handleCreateBooking = async () => {
@@ -256,32 +287,27 @@ const Bookings = ({ onClose, editingBooking }) => {
         vehicle_number: vehicleObj?.vehicle_number,
       };
 
+      if (refreshBookings) {
+        await refreshBookings();
+      }
+
       onClose(); // close modal
-      // open WhatsApp AFTER user sees success feedback
-      setTimeout(() => {
-        sendWhatsAppToCustomer(customerPhone, enrichedBooking);
-      }, 1000); // 0.9 sec feels natural
+      const shouldSendWhatsapp =
+        (!editingBooking && status === "confirmed") || // New booking confirmed
+        (editingBooking &&
+          originalStatus !== "confirmed" &&
+          status === "confirmed"); // Status changed to confirmed
+
+      if (shouldSendWhatsapp) {
+        setTimeout(() => {
+          sendWhatsAppToCustomer(customerPhone, enrichedBooking);
+        }, 1000);
+      }
     } catch (err) {
       console.error("API Error:", err);
       toast.error("Server error. Please try again!");
     }
   };
-
-  useEffect(() => {
-    if (editingBooking) {
-      setCustomerName(editingBooking.customer_name);
-      setCustomerPhone(editingBooking.customer_phone);
-      setPickup(editingBooking.pickup_location);
-      setDrop(editingBooking.drop_location);
-      setDriverName(editingBooking.driver.name);
-      setDriverPhone(editingBooking.driver.contact_number);
-      setVehicleType(editingBooking.vehicle.vehicle_type);
-      setRegisterNumber(editingBooking.vehicle.vehicle_number);
-      setPickupDateTime(editingBooking.pickup_datetime);
-      setDropDate(editingBooking.drop_date);
-      setAmount(editingBooking.amount);
-    }
-  }, [editingBooking]);
 
   const premiumSelectStyles = {
     control: (base, state) => ({
@@ -360,7 +386,12 @@ const Bookings = ({ onClose, editingBooking }) => {
   };
 
   const driverOptions = drivers
-    .filter((d) => d.driver_status === "available")
+    .filter(
+      (d) =>
+        d.driver_status === "available" ||
+        String(d.id) === String(driverId) ||
+        String(d.id) === String(editingBooking?.driver),
+    )
     .map((d) => ({
       value: d.id,
       label: d.name,
@@ -455,6 +486,20 @@ const Bookings = ({ onClose, editingBooking }) => {
 
     return local.toISOString().slice(0, 16);
   };
+
+  const toDateTimeLocal = (isoString) => {
+    if (!isoString) return "";
+
+    const d = new Date(isoString);
+
+    const pad = (n) => String(n).padStart(2, "0");
+
+    return (
+      `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+      `T${pad(d.getHours())}:${pad(d.getMinutes())}`
+    );
+  };
+
   return (
     <div className="booking-page">
       <div className="modal-header">
@@ -689,6 +734,7 @@ const Bookings = ({ onClose, editingBooking }) => {
                 isSearchable={false}
                 menuPortalTarget={document.body}
                 menuPosition="fixed"
+                isDisabled={!editingBooking}
                 components={{
                   Option: StatusOption,
                   SingleValue: StatusSingleValue,
