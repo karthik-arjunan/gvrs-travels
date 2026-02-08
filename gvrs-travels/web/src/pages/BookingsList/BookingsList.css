@@ -4,71 +4,139 @@
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 22px;
 }
 
-/* SUMMARY CARD */
+/* ================= PREMIUM CARD ================= */
 .summary-card {
-  background: #eaf6ff;
-  border-radius: 16px;
-  padding: 18px 22px;
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border-radius: 18px;
+  padding: 22px 24px;
+
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  transition: all 0.35s cubic-bezier(0.21, 1.02, 0.73, 1);
 }
 
+/* Subtle moving shine */
+.summary-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.5),
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+/* Hover Premium Motion */
 .summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px) scale(1.01);
+
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.15),
+    0 0 18px rgba(59, 130, 246, 0.15);
 }
 
-.summary-card h2 {
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 2px;
-  color: #111827;
+.summary-card:hover::before {
+  opacity: 1;
 }
 
-.summary-card p {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-/* ICON */
+/* ================= ICON BADGE ================= */
 .summary-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+
+  font-size: 20px;
+
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+
+  box-shadow:
+    inset 0 2px 5px rgba(255, 255, 255, 0.7),
+    0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
-/* STATUS COLORS */
+/* ================= TYPOGRAPHY ================= */
+.summary-card h2 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #0f172a;
+}
+
+.summary-card p {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ================= STATUS ACCENT COLORS ================= */
+/* TOTAL — Premium Blue */
+.summary-card.total {
+  border-left: 4px solid #3b82f6;
+}
+
+.summary-card.total:hover {
+  box-shadow: 0 18px 50px rgba(59, 130, 246, 0.25);
+}
+
 .summary-card.total .summary-icon {
-  background: #ffffff;
-  color: #ef4444;
+  color: #3b82f6;
+}
+
+/* CONFIRMED */
+.summary-card.confirmed {
+  border-left: 4px solid #22c55e;
+}
+
+.summary-card.confirmed:hover {
+  box-shadow: 0 18px 50px rgba(34, 197, 94, 0.25);
 }
 
 .summary-card.confirmed .summary-icon {
-  background: #ffffff;
-  color: #16a34a;
+  color: #22c55e;
 }
 
+/* PENDING */
+.summary-card.pending {
+  border-left: 4px solid #f97316;
+}
+.summary-card.pending:hover {
+  box-shadow: 0 18px 50px rgba(249, 115, 22, 0.25);
+}
 .summary-card.pending .summary-icon {
-  background: #ffffff;
-  color: #ea580c;
+  color: #f97316;
 }
 
+/* CANCELLED */
+.summary-card.cancelled {
+  border-left: 4px solid #ef4444;
+}
+.summary-card.cancelled:hover {
+  box-shadow: 0 18px 50px rgba(239, 68, 68, 0.25);
+}
 .summary-card.cancelled .summary-icon {
-  background: #ffffff;
-  color: #dc2626;
+  color: #ef4444;
 }
 
 /* =========================
@@ -818,11 +886,10 @@
   flex-direction: column;
 }
 
-
 .booking-date:hover {
   transform: translateY(-4px) scale(1.025);
   box-shadow:
-    0 10px 24px rgba(37,99,235,0.18),
+    0 10px 24px rgba(37, 99, 235, 0.18),
     0 0 14px #2563eb55;
   background: #eef2ff;
   z-index: 5;
