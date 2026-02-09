@@ -303,10 +303,9 @@ button.btn.cancel:hover {
   transform: scale(1.05);
 }
 
-.modal-actions {
+
+.modal-actions{
   margin-top: 20px;
   display: flex;
   justify-content: flex-end; /* 👉 move right */
 }
-
-

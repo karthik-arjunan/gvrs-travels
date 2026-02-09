@@ -5,6 +5,9 @@ import RevenueChart from "../../components/RevenueChart";
 import BookingCalendar from "../../components/BookingCalendar";
 import { BOOKING_API, VEHICLE_API } from "../../config/api";
 import { useCountUp } from "../BookingsList/BookingsList";
+import KpiMiniBar from "../../components/KpiMiniBar";
+import VehicleUsageMiniBar from "../../components/VehicleUsageMiniBar";
+import EarningsMiniChart from "../../components/EarningsMiniChart";
 
 const Dashboard = () => {
   const [totalBookings, setTotalBookings] = useState(0);
@@ -18,6 +21,9 @@ const Dashboard = () => {
   const [loadingRecent, setLoadingRecent] = useState(true);
   const prevIdsRef = useRef([]);
   const [highlighted, setHighlighted] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [growth, setGrowth] = useState(0);
+
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -26,20 +32,20 @@ const Dashboard = () => {
           fetch(VEHICLE_API),
         ]);
 
-        const bookings = await bookingRes.json();
+        const bookingData = await bookingRes.json();
         const vehicles = await vehicleRes.json();
 
-        setTotalBookings(bookings.length);
-        setVehicleCount(vehicles.length);
-
         // ⭐ SUM AMOUNT
-        const sum = bookings
+        const sum = bookingData
           .filter((b) =>
             ["confirmed", "completed", "cancelled"].includes(b.status),
           )
           .reduce((acc, b) => acc + parseFloat(b.amount || 0), 0);
 
         setTotalEarnings(sum);
+        setBookings(bookingData);
+        setTotalBookings(bookingData.length);
+        setVehicleCount(vehicles.length);
       } catch (err) {
         console.error("Dashboard fetch failed", err);
       }
@@ -114,6 +120,37 @@ const Dashboard = () => {
       })
       .catch((err) => console.error("Recent Activity Error:", err));
   }, []);
+
+  useEffect(() => {
+    if (!bookings.length) return;
+
+    const now = new Date();
+
+    const current = bookings.filter((b) => {
+      const d = new Date(b.created_at);
+      return (
+        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+      );
+    }).length;
+
+    const prevDate = new Date(now.getFullYear(), now.getMonth() - 1);
+
+    const previous = bookings.filter((b) => {
+      const d = new Date(b.created_at);
+      return (
+        d.getMonth() === prevDate.getMonth() &&
+        d.getFullYear() === prevDate.getFullYear()
+      );
+    }).length;
+
+    let percent = 0;
+
+    if (previous > 0) {
+      percent = ((current - previous) / previous) * 100;
+    }
+
+    setGrowth(percent.toFixed(1));
+  }, [bookings]);
 
   const loadRecentBookings = () => {
     setLoadingRecent(true);
@@ -192,13 +229,25 @@ const Dashboard = () => {
         <div className="kpi-card elite blue">
           <div className="card-glow"></div>
 
-          <div className="kpi-icon blue">
-            <FaCalendarCheck />
+          <div className="kpi-left">
+            <div className="kpi-icon blue">
+              <FaCalendarCheck />
+            </div>
+
+            <div className="kpi-text">
+              <p className="kpi-label">Total Bookings</p>
+
+              <div className="kpi-row">
+                <p className="kpi-value">{animatedTotal}</p>
+
+                <div className="trend-pill up">↗ {growth}%</div>
+              </div>
+            </div>
           </div>
 
-          <div className="kpi-text">
-            <p className="kpi-label">Total Bookings</p>
-            <p className="kpi-value">{animatedTotal}</p>
+          {/* ⭐ RIGHT SIDE GRAPH */}
+          <div className="kpi-graph">
+            <KpiMiniBar />
           </div>
         </div>
 
@@ -207,13 +256,22 @@ const Dashboard = () => {
         <div className="kpi-card elite green">
           <div className="card-glow"></div>
 
-          <div className="kpi-icon green">
-            <FaCar />
-          </div>
+          <div className="kpi-left">
+            <div className="kpi-icon green">
+              <FaCar />
+            </div>
 
-          <div className="kpi-text">
-            <p className="kpi-label">Vehicles</p>
-            <p className="kpi-value">{animatedVehicles}</p>
+            <div className="kpi-text">
+              <p className="kpi-label">Vehicles</p>
+
+              <div className="kpi-row">
+                <p className="kpi-value">{animatedVehicles}</p>
+              </div>
+            </div>
+          </div>
+          {/* ⭐ RIGHT SIDE GRAPH */}
+          <div className="kpi-graph">
+            <VehicleUsageMiniBar />
           </div>
         </div>
 
@@ -222,13 +280,19 @@ const Dashboard = () => {
         <div className="kpi-card elite orange">
           <div className="card-glow"></div>
 
-          <div className="kpi-icon orange">
-            <FaRupeeSign />
+          <div className="kpi-left">
+            <div className="kpi-icon orange">
+              <FaRupeeSign />
+            </div>
+
+            <div className="kpi-text">
+              <p className="kpi-label">Total Earnings</p>
+              <p className="kpi-value">₹{animatedEarnings}</p>
+            </div>
           </div>
 
-          <div className="kpi-text">
-            <p className="kpi-label">Total Earnings</p>
-            <p className="kpi-value">₹{animatedEarnings}</p>
+          <div className="kpi-graph">
+            <EarningsMiniChart />
           </div>
         </div>
       </div>
@@ -248,12 +312,14 @@ const Dashboard = () => {
 
         {/* RIGHT SIDE */}
 
-       
         <div className="recent-card">
           <h3 className="recent-title">Recent Activity</h3>
 
           {recentBookings.map((b) => (
-            <div key={b.id} className={`elite-card status-activity-${b.status}`}>
+            <div
+              key={b.id}
+              className={`elite-card status-activity-${b.status}`}
+            >
               {/* Avatar */}
               <div className="elite-avatar">{(b.driver_name || "D")[0]}</div>
 

@@ -400,7 +400,16 @@ body {
   overflow: hidden;
   transition: 0.35s ease;
   will-change: transform;
+  justify-content: space-between;
+
 }
+
+.kpi-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
 
 /* Hover Lift */
 .kpi-card:hover {
@@ -987,4 +996,32 @@ body {
 }
 .status-activity-completed::before {
   background: linear-gradient(#3b82f6,#2563eb);
+}
+
+.kpi-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trend-pill {
+  font-size: 12px;
+  font-weight: 600;
+
+  padding: 4px 10px;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trend-pill.up {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+.trend-pill.down {
+  background: #fef2f2;
+  color: #dc2626;
 }
