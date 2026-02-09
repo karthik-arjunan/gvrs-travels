@@ -287,7 +287,9 @@ const Dashboard = () => {
 
             <div className="kpi-text">
               <p className="kpi-label">Total Earnings</p>
-              <p className="kpi-value">₹{animatedEarnings}</p>
+              <p className="kpi-value">
+                ₹{Number(animatedEarnings).toLocaleString("en-IN")}
+              </p>
             </div>
           </div>
 

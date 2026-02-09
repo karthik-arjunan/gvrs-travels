@@ -8,8 +8,7 @@ import {
   Tooltip,
 } from "recharts";
 import { BOOKING_API } from "../config/api";
-
-const colors = ["#fde68a", "#fbbf24", "#f59e0b"];
+const colors = ["#fde2e4", "#f43f5e", "#881337"];
 
 // ⭐ PREMIUM TOOLTIP
 const PremiumTooltip = ({ active, payload, label }) => {
@@ -29,11 +28,23 @@ const PremiumTooltip = ({ active, payload, label }) => {
     >
       <div style={{ color: "#6b7280", marginBottom: 4 }}>{label}</div>
 
-      <div style={{ color: "#fbbf24" }}>
-        Total: ₹{payload[0].value.toLocaleString()}
+      <div style={{ color: "#111827" }}>
+        Total: {formatINR(payload[0].value)}
       </div>
     </div>
   );
+};
+
+const formatINR = (num) => {
+  if (!num) return "₹0";
+
+  if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr`;
+
+  if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
+
+  if (num >= 1000) return `₹${(num / 1000).toFixed(1)}K`;
+
+  return `₹${num}`;
 };
 
 const EarningsMiniChart = () => {
