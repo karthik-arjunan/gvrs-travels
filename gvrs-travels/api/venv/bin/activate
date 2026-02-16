@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/karthikeyan.arjunan/projects/travels/gvrs-travel-platform/api/venv"
+VIRTUAL_ENV="/Users/karthikeyan.arjunan/projects/travels/gvrs-travels/gvrs-travels/api/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

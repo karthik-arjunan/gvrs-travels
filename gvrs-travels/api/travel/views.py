@@ -2,8 +2,11 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Bookings, Vehicle, Driver
-from .serializers import BookingSerializer, VehicleSerializer, DriverSerializer
+from .models import (Bookings, Vehicle, 
+                     Driver,DriverTripReport)
+from .serializers import (BookingSerializer, 
+                          VehicleSerializer, DriverSerializer,
+                          DriverTripReportSerializer)
 
 
 @api_view(['GET', 'POST'])
@@ -137,7 +140,7 @@ def bookings_list_create(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def booking_detail(request, pk):
     try:
         booking = Bookings.objects.get(pk=pk)
@@ -158,3 +161,43 @@ def booking_detail(request, pk):
     elif request.method == 'DELETE':
         booking.delete()
         return Response({"message": "Booking deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
+@api_view(["POST"])
+def create_driver_report(request):
+    serializer = DriverTripReportSerializer(data=request.data)
+
+    if serializer.is_valid():
+        report = serializer.save()
+        return Response(
+            DriverTripReportSerializer(report).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+def list_driver_reports(request):
+    reports = DriverTripReport.objects.select_related(
+        "driver", "booking"
+    ).order_by("-created_at")
+
+    serializer = DriverTripReportSerializer(reports, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def reports_by_driver(request, driver_id):
+    reports = DriverTripReport.objects.filter(
+        driver_id=driver_id
+    ).select_related("driver", "booking")
+
+    serializer = DriverTripReportSerializer(reports, many=True)
+    return Response(serializer.data)
+
+@api_view(["DELETE"])
+def delete_driver_report(request, pk):
+    try:
+        report = DriverTripReport.objects.get(pk=pk)
+        report.delete()
+        return Response({"message": "Deleted"})
+    except DriverTripReport.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
