@@ -72,40 +72,39 @@ export default function DriverReport() {
 
   const shown = useRef(false);
 
- useEffect(() => {
-   if (startKm === "" || endKm === "") {
-     setDrivenKm("");
-     return;
-   }
+  useEffect(() => {
+    if (startKm === "" || endKm === "") {
+      setDrivenKm("");
+      return;
+    }
 
-   const diff = Number(endKm) - Number(startKm);
+    const diff = Number(endKm) - Number(startKm);
 
-   if (diff >= 0) {
-     setDrivenKm(diff);
-   } else {
-     setDrivenKm(""); // prevents negative
-   }
- }, [startKm, endKm]);
+    if (diff >= 0) {
+      setDrivenKm(diff);
+    } else {
+      setDrivenKm(""); // prevents negative
+    }
+  }, [startKm, endKm]);
 
- useEffect(() => {
-   if (!selectedDriver) {
-     setChartData([]);
-     return;
-   }
+  useEffect(() => {
+    if (!selectedDriver) {
+      setChartData([]);
+      return;
+    }
 
-   fetch(`${DRIVER_REPORT_DETAIL_API(selectedDriver)}/`)
-     .then((res) => res.json())
-     .then((data) => {
-       console.log("Fetched reports for driver", selectedDriver, data);
-       const formatted = data.map((r) => ({
-         name: r.booking_code, // or r.driver_name
-         km: r.driven_km,
-       }));
+    fetch(`${DRIVER_REPORT_DETAIL_API(selectedDriver)}/`)
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((r) => ({
+          name: r.booking_code, // or r.driver_name
+          km: r.driven_km,
+        }));
 
-       setChartData(formatted);
-     })
-     .catch(() => toast.error("Failed to load reports"));
- }, [selectedDriver]);
+        setChartData(formatted);
+      })
+      .catch(() => toast.error("Failed to load reports"));
+  }, [selectedDriver]);
   // ===============================
   // SAVE REPORT
   // ===============================
@@ -171,8 +170,8 @@ export default function DriverReport() {
     .filter((b) => b.status === "completed")
     .map((b) => ({
       value: b.id,
-      label: `${b.pickup_location} → ${b.drop_location}`,
-      status: b.status,
+      bookingId: b.booking_id,
+      route: `${b.pickup_location} → ${b.drop_location}`,
     }));
 
   const DriverOption = (props) => {
@@ -283,7 +282,9 @@ export default function DriverReport() {
 
     singleValue: (base) => ({
       ...base,
-      margin: 0,
+      fontWeight: 700,
+      letterSpacing: "0.4px",
+      color: "#111827",
     }),
 
     placeholder: (base) => ({
@@ -308,10 +309,11 @@ export default function DriverReport() {
 
     menu: (base) => ({
       ...base,
-      borderRadius: "12px",
-      overflow: "hidden",
-      boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
-      zIndex: 9999,
+      borderRadius: "18px",
+      padding: "8px",
+      background: "rgba(255,255,255,0.95)",
+      backdropFilter: "blur(12px)",
+      boxShadow: "0 20px 50px rgba(0,0,0,0.18)",
     }),
     menuPortal: (base) => ({
       ...base,
@@ -331,45 +333,70 @@ export default function DriverReport() {
       cursor: "pointer",
     }),
   };
-  const BookingOption = (props) => {
-    const { label, status } = props.data;
+  // const BookingOption = (props) => {
+  //   const { label, status } = props.data;
 
-    const colors = {
-      confirmed: "#166534",
-      pending: "#9a3412",
-      completed: "#1e40af",
-      cancelled: "#991b1b",
-    };
+  //   const colors = {
+  //     confirmed: "#166534",
+  //     pending: "#9a3412",
+  //     completed: "#1e40af",
+  //     cancelled: "#991b1b",
+  //   };
 
+  //   return (
+  //     <components.Option {...props}>
+  //       <div
+  //         style={{
+  //           display: "flex",
+  //           justifyContent: "space-between",
+  //           alignItems: "center",
+  //           width: "100%",
+  //         }}
+  //       >
+  //         {/* LEFT — Route */}
+  //         <span style={{ fontWeight: 600 }}>{label}</span>
+
+  //         {/* RIGHT — Status Pill */}
+  //         <span
+  //           style={{
+  //             background: colors[status] + "22",
+  //             color: colors[status],
+  //             padding: "4px 10px",
+  //             borderRadius: "999px",
+  //             fontSize: 12,
+  //             fontWeight: 700,
+  //             textTransform: "capitalize",
+  //           }}
+  //         >
+  //           {status}
+  //         </span>
+  //       </div>
+  //     </components.Option>
+  //   );
+  // };
+
+ const BookingOption = (props) => {
+   const { bookingId, route } = props.data;
+
+   return (
+     <components.Option {...props}>
+       <div className="elite-option">
+         {/* LEFT — BOOKING ID */}
+         <span className="elite-id">{bookingId}</span>
+
+         {/* RIGHT — ROUTE */}
+         <span className="elite-route">{route}</span>
+       </div>
+     </components.Option>
+   );
+ };
+
+
+  const BookingSingleValue = (props) => {
     return (
-      <components.Option {...props}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
-          {/* LEFT — Route */}
-          <span style={{ fontWeight: 600 }}>{label}</span>
-
-          {/* RIGHT — Status Pill */}
-          <span
-            style={{
-              background: colors[status] + "22",
-              color: colors[status],
-              padding: "4px 10px",
-              borderRadius: "999px",
-              fontSize: 12,
-              fontWeight: 700,
-              textTransform: "capitalize",
-            }}
-          >
-            {status}
-          </span>
-        </div>
-      </components.Option>
+      <components.SingleValue {...props}>
+        <strong>{props.data.bookingId}</strong>
+      </components.SingleValue>
     );
   };
 
@@ -487,7 +514,10 @@ export default function DriverReport() {
                     isDisabled={!selectedDriver}
                     menuPortalTarget={document.body}
                     menuPosition="fixed"
-                    components={{ Option: BookingOption }}
+                    components={{
+                      Option: BookingOption,
+                      SingleValue: BookingSingleValue,
+                    }}
                   />
                 </div>
                 <div className="three-col-row">
