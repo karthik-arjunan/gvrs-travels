@@ -102,7 +102,9 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
   ];
 
   useEffect(() => {
-    if (!editingBooking) {
+    if (editingBooking) {
+      setStatus(editingBooking.status);
+    } else {
       setStatus("pending");
     }
   }, [editingBooking]);
@@ -257,19 +259,6 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
       }
 
       const data = await res.json();
-      await fetch(`${VEHICLE_API}${vehicleId}/`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vehicle_status: "booked",
-        }),
-      });
-      const fd = new FormData();
-      fd.append("driver_status", "booked");
-      await fetch(`${DRIVER_API}${driverId}/`, {
-        method: "PATCH",
-        body: fd,
-      });
 
       toast.success(
         editingBooking
@@ -754,8 +743,10 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
               <Select
                 className="premium-select"
                 options={statusOptions}
-                value={statusOptions.find((opt) => opt.value === status)}
-                onChange={(selected) => setStatus(selected.value)}
+                value={
+                  statusOptions.find((opt) => opt.value === status) || null
+                }
+                onChange={(selected) => setStatus(selected?.value)}
                 placeholder="Select status"
                 styles={premiumSelectStyles}
                 isSearchable={false}

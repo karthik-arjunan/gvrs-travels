@@ -533,8 +533,8 @@ const AddVehicleModal = ({ onClose, onSave, editingVehicle }) => {
 
                 <button
                   type="button"
-                  className={`status-btn ontrip ${carStatus === "on-trip" ? "active" : ""}`}
-                  onClick={() => setCarStatus("on-trip")}
+                  className={`status-btn ontrip ${carStatus === "booked" ? "active" : ""}`}
+                  onClick={() => setCarStatus("booked")}
                 >
                   <FaRoute />
                   On Trip

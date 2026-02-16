@@ -10,9 +10,6 @@ import {
 import { BOOKING_API } from "../config/api";
 
 const colors = [
-  "#e0e7ff",
-  "#c7d2fe",
-  "#a5b4fc",
   "#818cf8",
   "#6366f1",
   "#4f46e5",

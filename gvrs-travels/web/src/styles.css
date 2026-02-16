@@ -303,9 +303,223 @@ button.btn.cancel:hover {
   transform: scale(1.05);
 }
 
-
-.modal-actions{
+.modal-actions {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end; /* 👉 move right */
+}
+
+.mini-close-btn {
+  background: #ef4444;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.mini-close-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+  background: #dc2626;
+}
+
+/* ================================
+   MINI EMPTY STATE MODAL (Premium)
+================================ */
+
+.modal-overlay.mini {
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Smaller modal */
+.modal.booking-modal.mini {
+  width: 320px;
+  padding: 18px 20px;
+  border-radius: 16px;
+
+  background: linear-gradient(145deg, #ffffff, #f6f7f9);
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.12),
+    0 3px 8px rgba(0, 0, 0, 0.08);
+
+  animation: miniPop 0.22s ease;
+  text-align: center;
+}
+
+/* Title */
+.mini-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Message text */
+.mini-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 14px;
+}
+
+/* Compact Close button */
+.modal.booking-modal.mini .modal-close,
+.modal.booking-modal.mini button.close-btn {
+  padding: 5px 12px;
+  font-size: 13px;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+  transition: 0.2s;
+}
+
+.modal.booking-modal.mini button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+}
+
+/* Animation */
+@keyframes miniPop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* MATCH NORMAL MENU ITEM LAYOUT */
+.sidebar-group .group-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 16px; /* SAME as nav-link */
+  border-radius: 12px;
+
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  margin-left: 16px;
+  transition: all 0.25s ease;
+}
+
+/* ICON ALIGNMENT */
+.sidebar-group .group-title svg:first-child {
+  font-size: 18px;
+}
+
+.sidebar-group .group-title:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.08),
+    rgba(139, 92, 246, 0.06)
+  );
+
+  transform: translateX(2px);
+}
+
+/* Chevron rotation */
+
+.chev {
+  margin-left: auto;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chev.open {
+  transform: rotate(180deg);
+}
+
+/* SUB MENU */
+
+.group-submenu {
+  overflow: hidden;
+  margin-left: 26px;
+  padding-left: 14px;
+  animation: dropdownFade 0.28s ease;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  margin: 6px 0;
+}
+.group-submenu.open {
+  max-height: 200px;
+}
+
+/* SUB LINK */
+.sub-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 18px 12px 44px;
+  font-size: 14px;
+  font-weight: 500;
+
+  border-radius: 12px;
+  text-decoration: none;
+
+  color: #374151;
+  transition: all 0.25s ease;
+}
+
+.sub-icon {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.sub-link:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.nav-icon {
+  width: 22px;
+  display: flex;
+  justify-content: center;
+}
+
+.sub-link:hover .sub-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* TEXT ALIGNMENT */
+
+.nav-text {
+  flex: 1;
+}
+
+/* Chevron always right */
+
+.chev {
+  margin-left: auto;
+}
+
+.group-submenu li {
+  list-style: none;
+}
+
+/* ⭐ ACTIVE (PREMIUM MATCH) */
+.sub-link.active-sub {
+  background: #e8f2ff; /* same soft blue bg */
+  color: #2563eb; /* same text blue */
+  border-left: 4px solid #2563eb; /* SAME LEFT BAR */
+}
+
+/* Active icon */
+.sub-link.active-sub .sub-icon {
+  color: #2563eb;
+}
+
+.required {
+  color: #ef4444;   /* premium red */
+  font-weight: 700;
+  margin-left: 2px;
 }

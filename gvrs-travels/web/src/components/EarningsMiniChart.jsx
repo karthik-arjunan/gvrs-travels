@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "recharts";
 import { BOOKING_API } from "../config/api";
-const colors = ["#fde2e4", "#f43f5e", "#881337"];
+const colors = ["#4c1d95","#f43f5e", "#14B8A6"];
 
 // ⭐ PREMIUM TOOLTIP
 const PremiumTooltip = ({ active, payload, label }) => {

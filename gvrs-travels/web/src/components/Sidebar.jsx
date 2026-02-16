@@ -1,15 +1,18 @@
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
 import {
   FaTachometerAlt,
   FaClipboardList,
   FaUserTie,
-  FaChartBar,
-  FaCog,
   FaCar,
+  FaChevronDown,
+  FaIdBadge,
+  FaChartLine,
 } from "react-icons/fa";
 import "../pages/dashboard/dashboard.css";
-
+import { HiOutlinePresentationChartBar } from "react-icons/hi";
 const Sidebar = () => {
+  const [openDrivers, setOpenDrivers] = useState(false);
   return (
     <aside className="sidebar">
       <ul className="sidebar-menu">
@@ -28,17 +31,50 @@ const Sidebar = () => {
             <FaCar /> <span>Vehicles</span>
           </NavLink>
         </li>
-        <li>
-          <NavLink to="/driverdetails" className="nav-link">
-            <FaUserTie /> <span>Drivers</span>
-          </NavLink>
+        {/* ⭐ DRIVERS GROUP */}
+        <li className="sidebar-group">
+          <div
+            className="group-title"
+            onClick={() => setOpenDrivers((prev) => !prev)}
+          >
+            <div className="nav-icon">
+              <FaUserTie />
+            </div>
+
+            <span className="nav-text">Drivers</span>
+
+            <FaChevronDown className={`chev ${openDrivers ? "open" : ""}`} />
+          </div>
+
+          {openDrivers && (
+            <ul className={`group-submenu ${openDrivers ? "open" : ""}`}>
+              <li>
+                <NavLink
+                  to="/driverdetails"
+                  className={({ isActive }) =>
+                    `sub-link ${isActive ? "active-sub" : ""}`
+                  }
+                >
+                  <FaIdBadge className="sub-icon" />
+                  List
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="/driverReport"
+                  className={({ isActive }) =>
+                    `sub-link ${isActive ? "active-sub" : ""}`
+                  }
+                >
+                  <FaChartLine className="sub-icon" />
+                  Reports
+                </NavLink>
+              </li>
+            </ul>
+          )}
         </li>
-        {/* <li>
-          <NavLink to="/reports" className="nav-link">
-            <FaChartBar /> <span>Reports</span>
-          </NavLink>
-        </li>
-        <li>
+        {/*<li>
           <NavLink to="/settings" className="nav-link">
             <FaCog /> <span>Settings</span>
           </NavLink>

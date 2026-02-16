@@ -5,3 +5,6 @@ export const API_BASE_URL = BASE_URL;
 export const VEHICLE_API = `${BASE_URL}/api/vehicles/`;
 export const DRIVER_API = `${BASE_URL}/api/drivers/`;
 export const BOOKING_API = `${BASE_URL}/api/bookings/`;
+export const DRIVER_REPORT_API = `${BASE_URL}/api/reports/create/`;
+export const DRIVER_REPORT_DETAIL_API = (id) =>
+  `${BASE_URL}/api/reports/driver/${id}`;

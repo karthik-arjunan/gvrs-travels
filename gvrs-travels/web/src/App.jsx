@@ -9,6 +9,7 @@ import DriverDetails from "./pages/Drivers/DriverDetails";
 import Bookings from "./pages/CreateBookings/CreateBookings";
 import BookingsList from "./pages/BookingsList/BookingsList";
 import VehiclesList from "./pages/Vehicle/VehicleList";
+import DriverReport from "./pages/DriverReport/DriverReport";
 function App() {
   return (
     <>
@@ -32,6 +33,7 @@ function App() {
             <Route path="/driverdetails" element={<DriverDetails />} />
             <Route path="/bookingsList" element={<BookingsList />} />
             <Route path="/vehiclesList" element={<VehiclesList />} />
+            <Route path="/driverReport" element={<DriverReport />} />
           </Route>
         </Route>
 

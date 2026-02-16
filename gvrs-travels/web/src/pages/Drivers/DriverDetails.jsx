@@ -453,7 +453,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Licence Number *</label>
+                  <label>Licence Number <span className="required">*</span></label>
                   <input
                     type="text"
                     name="licenseNo"
@@ -463,7 +463,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Driver Name *</label>
+                  <label>Driver Name <span className="required">*</span></label>
                   <input
                     type="text"
                     name="name"
@@ -473,7 +473,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Date of Birth *</label>
+                  <label>Date of Birth <span className="required">*</span></label>
                   <input
                     type="date"
                     name="dob"
@@ -483,7 +483,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Address *</label>
+                  <label>Address <span className="required">*</span></label>
                   <textarea
                     name="address"
                     rows="4"
@@ -493,7 +493,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Contact Number *</label>
+                  <label>Contact Number <span className="required">*</span></label>
                   <input
                     type="text"
                     name="contact"
@@ -505,7 +505,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Father / Spouse Name *</label>
+                  <label>Father / Spouse Name <span className="required">*</span></label>
                   <input
                     type="text"
                     name="fatherName"
@@ -515,7 +515,7 @@ const DriverDetails = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Emergency Contact *</label>
+                  <label>Emergency Contact <span className="required">*</span></label>
                   <input
                     type="text"
                     name="emergencyContact"
