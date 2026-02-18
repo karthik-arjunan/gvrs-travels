@@ -3,10 +3,10 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from .models import (Bookings, Vehicle, 
-                     Driver,DriverTripReport)
+                     Driver,DriverTripReport, TripFinance)
 from .serializers import (BookingSerializer, 
                           VehicleSerializer, DriverSerializer,
-                          DriverTripReportSerializer)
+                          DriverTripReportSerializer, TripFinanceSerializer)
 
 
 @api_view(['GET', 'POST'])
@@ -201,3 +201,24 @@ def delete_driver_report(request, pk):
         return Response({"message": "Deleted"})
     except DriverTripReport.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["POST"])
+def create_trip_finance(request):
+    serializer = TripFinanceSerializer(data=request.data)
+    if serializer.is_valid():
+        obj = serializer.save()
+        return Response(TripFinanceSerializer(obj).data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(["GET"])
+def list_trip_finance(request):
+    qs = (
+        TripFinance.objects
+        .select_related("booking", "driver")
+        .order_by("created_at")
+    )
+
+    serializer = TripFinanceSerializer(qs, many=True)
+    return Response(serializer.data)
+

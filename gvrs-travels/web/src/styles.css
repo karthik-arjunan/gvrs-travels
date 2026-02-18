@@ -209,6 +209,7 @@ button.btn.cancel:hover {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
+  text-transform: capitalize;
 }
 
 .status.confirmed {

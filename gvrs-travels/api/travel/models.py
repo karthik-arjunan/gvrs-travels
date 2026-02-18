@@ -164,3 +164,16 @@ class DriverTripReport(models.Model):
 
     def __str__(self):
         return f"{self.driver} — {self.driven_km} KM"
+    
+class TripFinance(models.Model):
+    booking = models.ForeignKey(Bookings, on_delete=models.CASCADE)
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+
+    driver_salary = models.PositiveIntegerField(default=0)
+    bata = models.PositiveIntegerField(default=0)
+    balance = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.booking.booking_id} — Balance ₹{self.balance}"
+    

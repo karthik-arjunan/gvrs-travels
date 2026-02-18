@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Bookings, Vehicle, Driver, DriverTripReport
+from .models import Bookings, Vehicle, Driver, DriverTripReport, TripFinance
 
 
 class VehicleSerializer(serializers.ModelSerializer):
@@ -57,7 +57,22 @@ class BookingSerializer(serializers.ModelSerializer):
 class DriverTripReportSerializer(serializers.ModelSerializer):
     driver_name = serializers.CharField(source="driver.name", read_only=True)
     booking_code = serializers.CharField(source="booking.booking_id", read_only=True)
-
+    pickup_location = serializers.CharField(source="booking.pickup_location", read_only=True)
+    drop_location = serializers.CharField(source="booking.drop_location", read_only=True)
+    
+    def validate(self, data):
+        if DriverTripReport.objects.filter(booking=data["booking"]).exists():
+            raise serializers.ValidationError("Report already exists for this booking")
+        return data
+    
     class Meta:
         model = DriverTripReport
+        fields = "__all__"
+
+class TripFinanceSerializer(serializers.ModelSerializer):
+    booking_id = serializers.CharField(source="booking.booking_id", read_only=True)
+    trip_amount = serializers.IntegerField(source="booking.amount", read_only=True)
+    driver_name = serializers.CharField(source="driver.name", read_only=True)
+    class Meta:
+        model = TripFinance
         fields = "__all__"

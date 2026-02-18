@@ -30,7 +30,7 @@ export default function DriverReport() {
   const [startKm, setStartKm] = useState("");
   const [endKm, setEndKm] = useState("");
   const [drivenKm, setDrivenKm] = useState("");
-
+  const [usedBookings, setUsedBookings] = useState([]);
   const [chartData, setChartData] = useState([]);
 
   // ===============================
@@ -97,19 +97,22 @@ export default function DriverReport() {
       .then((res) => res.json())
       .then((data) => {
         const formatted = data.map((r) => ({
-          name: r.booking_code, // or r.driver_name
+          name: r.booking_code,
+          route: `${r.pickup_location} → ${r.drop_location}`,
           km: r.driven_km,
         }));
 
         setChartData(formatted);
-      })
-      .catch(() => toast.error("Failed to load reports"));
+
+        // ⭐ store used booking ids
+        setUsedBookings(data.map((r) => r.booking));
+      });
   }, [selectedDriver]);
+
   // ===============================
   // SAVE REPORT
   // ===============================
   const saveReport = async () => {
-    console.log({ selectedDriver, tripId, startKm, endKm });
     if (!selectedDriver) {
       toast.error("Select Driver");
       return;
@@ -144,16 +147,27 @@ export default function DriverReport() {
         const filtered = prev.filter((p) => p.name !== saved.booking_code);
         return [...filtered, { name: saved.booking_code, km: saved.driven_km }];
       });
-
+      setUsedBookings((prev) => [...prev, Number(tripId)]);
       toast.success("Report saved 🚀");
 
+      // refresh chart data
+      const refreshed = await fetch(
+        `${DRIVER_REPORT_DETAIL_API(selectedDriver)}/`,
+      ).then((r) => r.json());
+
+      setChartData(
+        refreshed.map((r) => ({
+          name: r.booking_code,
+          route: `${r.pickup_location} → ${r.drop_location}`,
+          km: r.driven_km,
+        })),
+      );
       // ⭐ Reset form
       setShowModal(false);
       setStartKm("");
       setEndKm("");
       setDrivenKm("");
       setTripId("");
-      setSelectedDriver("");
     } catch (err) {
       toast.error("Failed to save report");
     }
@@ -167,7 +181,7 @@ export default function DriverReport() {
   }));
 
   const bookingOptions = driverTrips
-    .filter((b) => b.status === "completed")
+    .filter((b) => b.status === "completed" && !usedBookings.includes(b.id))
     .map((b) => ({
       value: b.id,
       bookingId: b.booking_id,
@@ -333,64 +347,22 @@ export default function DriverReport() {
       cursor: "pointer",
     }),
   };
-  // const BookingOption = (props) => {
-  //   const { label, status } = props.data;
 
-  //   const colors = {
-  //     confirmed: "#166534",
-  //     pending: "#9a3412",
-  //     completed: "#1e40af",
-  //     cancelled: "#991b1b",
-  //   };
+  const BookingOption = (props) => {
+    const { bookingId, route } = props.data;
 
-  //   return (
-  //     <components.Option {...props}>
-  //       <div
-  //         style={{
-  //           display: "flex",
-  //           justifyContent: "space-between",
-  //           alignItems: "center",
-  //           width: "100%",
-  //         }}
-  //       >
-  //         {/* LEFT — Route */}
-  //         <span style={{ fontWeight: 600 }}>{label}</span>
+    return (
+      <components.Option {...props}>
+        <div className="elite-option">
+          {/* LEFT — BOOKING ID */}
+          <span className="elite-id">{bookingId}</span>
 
-  //         {/* RIGHT — Status Pill */}
-  //         <span
-  //           style={{
-  //             background: colors[status] + "22",
-  //             color: colors[status],
-  //             padding: "4px 10px",
-  //             borderRadius: "999px",
-  //             fontSize: 12,
-  //             fontWeight: 700,
-  //             textTransform: "capitalize",
-  //           }}
-  //         >
-  //           {status}
-  //         </span>
-  //       </div>
-  //     </components.Option>
-  //   );
-  // };
-
- const BookingOption = (props) => {
-   const { bookingId, route } = props.data;
-
-   return (
-     <components.Option {...props}>
-       <div className="elite-option">
-         {/* LEFT — BOOKING ID */}
-         <span className="elite-id">{bookingId}</span>
-
-         {/* RIGHT — ROUTE */}
-         <span className="elite-route">{route}</span>
-       </div>
-     </components.Option>
-   );
- };
-
+          {/* RIGHT — ROUTE */}
+          <span className="elite-route">{route}</span>
+        </div>
+      </components.Option>
+    );
+  };
 
   const BookingSingleValue = (props) => {
     return (
@@ -400,11 +372,37 @@ export default function DriverReport() {
     );
   };
 
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+
+      return (
+        <div
+          style={{
+            background: "white",
+            padding: "12px 16px",
+            borderRadius: 12,
+            boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+            fontSize: 13,
+            fontWeight: 600,
+          }}
+        >
+          <div style={{ fontSize: 14, fontWeight: 700 }}>{data.bookingId}</div>
+
+          <div style={{ color: "#6b7280", marginTop: 2 }}>{data.route}</div>
+
+          <div style={{ marginTop: 6, color: "#4f46e5" }}>{data.km} KM</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="report-container">
       {/* HEADER */}
       <div className="driver-page-header">
-        <h1 className="page-title">Performance</h1>
+        <h1 className="page-title">Driver Performance</h1>
 
         <div className="driver-header-actions">
           <button
@@ -587,7 +585,7 @@ export default function DriverReport() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
 
               <Bar
                 dataKey="km"
