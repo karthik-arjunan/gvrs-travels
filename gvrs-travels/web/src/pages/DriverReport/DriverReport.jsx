@@ -32,7 +32,8 @@ export default function DriverReport() {
   const [drivenKm, setDrivenKm] = useState("");
   const [usedBookings, setUsedBookings] = useState([]);
   const [chartData, setChartData] = useState([]);
-
+  const [openMonths, setOpenMonths] = useState({});
+  const [visibleCount, setVisibleCount] = useState({});
   // ===============================
   // FETCH DATA
   // ===============================
@@ -100,6 +101,7 @@ export default function DriverReport() {
           name: r.booking_code,
           route: `${r.pickup_location} → ${r.drop_location}`,
           km: r.driven_km,
+          date: r.created_at,
         }));
 
         setChartData(formatted);
@@ -145,10 +147,18 @@ export default function DriverReport() {
       // ⭐ Update chart instantly
       setChartData((prev) => {
         const filtered = prev.filter((p) => p.name !== saved.booking_code);
-        return [...filtered, { name: saved.booking_code, km: saved.driven_km }];
+        return [
+          ...filtered,
+          {
+            name: saved.booking_code,
+            km: saved.driven_km,
+            route: `${saved.pickup_location} → ${saved.drop_location}`,
+            date: saved.created_at, // ⭐ IMPORTANT
+          },
+        ];
       });
       setUsedBookings((prev) => [...prev, Number(tripId)]);
-      toast.success("Report saved 🚀");
+      toast.success("Report saved");
 
       // refresh chart data
       const refreshed = await fetch(
@@ -160,6 +170,7 @@ export default function DriverReport() {
           name: r.booking_code,
           route: `${r.pickup_location} → ${r.drop_location}`,
           km: r.driven_km,
+          date: r.created_at,
         })),
       );
       // ⭐ Reset form
@@ -398,6 +409,20 @@ export default function DriverReport() {
     return null;
   };
 
+  const toggleMonth = (month) => {
+    setOpenMonths((prev) => ({
+      ...prev,
+      [month]: !prev[month],
+    }));
+  };
+
+  const showMore = (month) => {
+    setVisibleCount((prev) => ({
+      ...prev,
+      [month]: (prev[month] || 10) + 10,
+    }));
+  };
+
   return (
     <div className="report-container">
       {/* HEADER */}
@@ -573,30 +598,126 @@ export default function DriverReport() {
       {/* ================= CHART ================= */}
       {chartData.length > 0 && (
         <div className="chart-card">
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={chartData}>
-              <defs>
-                <linearGradient id="premiumBar" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#5B5FEF" />
-                  <stop offset="100%" stopColor="#9333EA" />
-                </linearGradient>
-              </defs>
+          {Object.entries(
+            chartData.reduce((acc, item) => {
+              console.log("Grouping item:", item.name, item.date); // Debug log
+              if (!item.date) return acc;
+              const d = new Date(item.date.replace(" ", "T"));
 
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
+              const key = `${d.getFullYear()}-${d.getMonth()}`;
 
-              <Bar
-                dataKey="km"
-                fill="url(#premiumBar)"
-                radius={[10, 10, 0, 0]}
-                animationDuration={900}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+              const month = d.toLocaleString("default", {
+                month: "short",
+                year: "numeric",
+              });
+
+              if (!acc[month]) acc[month] = [];
+              acc[month].push(item);
+              return acc;
+            }, {}),
+          ).map(([month, bookings]) => {
+            const limit = visibleCount[month] || 10;
+            const visibleBookings = bookings.slice(0, limit);
+
+            return (
+              <div key={month} style={{ marginBottom: 26 }}>
+                {/* HEADER */}
+                <div
+                  onClick={() => toggleMonth(month)}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    background: "#f1f5f9",
+                    padding: "12px 16px",
+                    borderRadius: 12,
+                    fontWeight: 700,
+                  }}
+                >
+                  <span>{month}</span>
+
+                  <span
+                    style={{
+                      background: "#e0e7ff",
+                      padding: "4px 12px",
+                      borderRadius: 999,
+                      fontSize: 13,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {bookings.length} Bookings
+                  </span>
+                </div>
+
+                {/* LIST */}
+                {openMonths[month] && (
+                  <div style={{ marginTop: 12 }}>
+                    {visibleBookings.map((b) => (
+                      <div
+                        key={b.name}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          marginBottom: 10,
+                          padding: "10px 14px",
+                          borderRadius: 12,
+                          background: "#f9fafb",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                          transition: "0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#eef2ff")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "#f9fafb")
+                        }
+                      >
+                        {/* Dot */}
+                        <div
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            background:
+                              "linear-gradient(135deg,#6366f1,#9333ea)",
+                          }}
+                        />
+
+                        {/* Booking ID */}
+                        <div style={{ fontWeight: 600 }}>{b.name}</div>
+
+                        {/* KM */}
+                        <div style={{ marginLeft: "auto", fontWeight: 700 }}>
+                          {b.km} km
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* LOAD MORE */}
+                    {bookings.length > limit && (
+                      <div
+                        onClick={() => showMore(month)}
+                        style={{
+                          textAlign: "center",
+                          marginTop: 10,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          color: "#4f46e5",
+                        }}
+                      >
+                        View more…
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
+
       {kmError && <div className="km-error">{kmError}</div>}
     </div>
   );
