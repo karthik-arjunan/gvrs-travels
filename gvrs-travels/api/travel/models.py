@@ -171,6 +171,7 @@ class TripFinance(models.Model):
 
     driver_salary = models.PositiveIntegerField(default=0)
     bata = models.PositiveIntegerField(default=0)
+    diesel_amount = models.PositiveIntegerField(default=0)
     balance = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
