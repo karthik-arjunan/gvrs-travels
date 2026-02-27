@@ -31,7 +31,8 @@ export default function BookingReport() {
   const [bata, setBata] = useState("");
   const [amount, setAmount] = useState();
   const [chartData, setChartData] = useState([]);
-
+  const [dieselAmount, setDieselAmount] = useState("");
+  const [usedBookingIds, setUsedBookingIds] = useState([]);
   const BookingOption = (props) => {
     const { bookingId, route } = props.data;
 
@@ -124,6 +125,7 @@ export default function BookingReport() {
           driver: selectedDriver,
           driver_salary: Number(driverSalary),
           bata: Number(bata),
+          diesel_amount: Number(dieselAmount),
           balance: Number(amount),
         }),
       });
@@ -133,15 +135,11 @@ export default function BookingReport() {
       const data = await res.json();
       toast.success("Saved successfully");
       setShowModal(false);
-      setChartData((prev) => [
-        ...prev,
-        {
-          booking: selectedBooking.bookingId,
-          salary: Number(driverSalary),
-          bata: Number(bata),
-          balance: Number(amount),
-        },
-      ]);
+      fetch(TRIP_FINANCE_API)
+        .then((res) => res.json())
+        .then((data) => {
+          setChartData(transformData(data));
+        });
     } catch (err) {
       toast.error("Error saving finance data");
     }
@@ -194,6 +192,7 @@ export default function BookingReport() {
         id: item.booking_id,
         salary: item.driver_salary,
         bata: item.bata,
+        diesel: item.diesel_amount,
         balance: item.balance,
         amount: item.trip_amount,
       });
@@ -206,12 +205,14 @@ export default function BookingReport() {
     amount: { label: "Trip Amount", color: "rgb(253,181,51)" }, // amber
     bata: { label: "Driver Bata", color: "rgb(139,111,53)" }, // gold brown
     salary: { label: "Driver Salary", color: "rgb(7,169,154)" }, // teal
+    diesel: { label: "Diesel Amount", color: "rgb(124,58,237)" },
   };
 
   const [visibleKeys, setVisibleKeys] = useState({
     amount: true,
     salary: true,
     bata: true,
+    diesel: true,
   });
   const toggleKey = (key) => {
     setVisibleKeys((prev) => ({
@@ -304,6 +305,20 @@ export default function BookingReport() {
               {COLOR_LABELS.bata.label}: ₹ {bata}
             </div>
           )}
+          {/* Diesel */}
+          {visibleKeys.diesel && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: COLOR_LABELS.diesel.color,
+                }}
+              />
+              {COLOR_LABELS.diesel.label}: ₹ {row[`${bookingId}_diesel`] ?? 0}
+            </div>
+          )}
           {/* Balance → show ONLY if amount visible */}
           {visibleKeys.amount && (
             <div
@@ -333,6 +348,7 @@ export default function BookingReport() {
       row[`${b.id}_amount`] = b.amount;
       row[`${b.id}_salary`] = b.salary;
       row[`${b.id}_bata`] = b.bata;
+      row[`${b.id}_diesel`] = b.diesel;
       row[`${b.id}_balance`] = b.balance;
     });
 
@@ -357,11 +373,17 @@ export default function BookingReport() {
       .then((res) => res.json())
       .then((data) => {
         setChartData(transformData(data));
+
+        // ✅ Extract used booking IDs
+        const usedIds = data.map((item) => item.booking);
+        setUsedBookingIds(usedIds);
       });
   }, []);
 
   const bookingOptions = bookings
-    .filter((b) => b.status === "completed")
+    .filter(
+      (b) => b.status === "completed" && !usedBookingIds.includes(b.id), // ✅ REMOVE already used
+    )
     .map((b) => ({
       value: b.id,
       bookingId: b.booking_id,
@@ -461,12 +483,13 @@ export default function BookingReport() {
   };
   useEffect(() => {
     const total =
-      Number(bookingAmount || "") -
-      Number(driverSalary || "") -
-      Number(bata || 0);
+      Number(bookingAmount || 0) -
+      Number(driverSalary || 0) -
+      Number(bata || 0) -
+      Number(dieselAmount || 0);
 
     setAmount(total >= 0 ? total : 0);
-  }, [bookingAmount, driverSalary, bata]);
+  }, [bookingAmount, driverSalary, bata, dieselAmount]);
 
   return (
     <div className="report-page">
@@ -484,7 +507,7 @@ export default function BookingReport() {
         <div className="modal-overlay">
           <div className="booking-modal">
             <div className="modal-header">
-              <h3>Add Detail Report</h3>
+              <h3>Add Booking Detail Report</h3>
               <button
                 className="modal-close"
                 onClick={() => setShowModal(false)}
@@ -583,6 +606,14 @@ export default function BookingReport() {
                   />
                 </div>
                 <div className="form-group">
+                  <label>Diesel Amount</label>
+                  <input
+                    type="number"
+                    value={dieselAmount}
+                    onChange={(e) => setDieselAmount(e.target.value)}
+                  />
+                </div>
+                <div className="form-group full-width">
                   <p
                     style={{
                       fontWeight: 700,
@@ -592,6 +623,7 @@ export default function BookingReport() {
                       background: amount < 1000 ? "#fee2e2" : "#dcfce7",
                       color: amount < 1000 ? "#b91c1c" : "#166534",
                       display: "inline-block",
+                      textAlign: "right",
                     }}
                   >
                     Balance: ₹ {amount}
@@ -690,6 +722,29 @@ export default function BookingReport() {
               />
               Bata
             </div>
+            {/* Diesel Amount */}
+            <div
+              onClick={() => toggleKey("diesel")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                cursor: "pointer",
+                opacity: visibleKeys.diesel ? 1 : 0.35,
+                transition: "0.2s",
+                fontWeight: 600,
+              }}
+            >
+              <span
+                style={{
+                  width: 12,
+                  height: 12,
+                  background: "rgb(124,58,237)",
+                  borderRadius: 3,
+                }}
+              />
+              Diesel Amount
+            </div>
           </div>
 
           <ResponsiveContainer width="100%" height={360}>
@@ -711,6 +766,11 @@ export default function BookingReport() {
                 <linearGradient id="balGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="rgb(253,181,51)" />
                   <stop offset="100%" stopColor="rgb(200,130,20)" />
+                </linearGradient>
+                {/* Diesel Amount */}
+                <linearGradient id="dieselGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgb(124,58,237)" />
+                  <stop offset="100%" stopColor="rgb(91,33,182)" />
                 </linearGradient>
               </defs>
 
@@ -752,6 +812,13 @@ export default function BookingReport() {
                       dataKey={`${id}_bata`}
                       stackId={id}
                       fill="url(#bataGrad)"
+                    />
+                  )}
+                  {visibleKeys.diesel && (
+                    <Bar
+                      dataKey={`${id}_diesel`}
+                      stackId={id}
+                      fill="url(#dieselGrad)"
                     />
                   )}
 

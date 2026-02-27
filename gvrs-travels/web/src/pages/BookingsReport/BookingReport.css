@@ -48,3 +48,7 @@
   font-weight:700;
   color:#111827;
 }
+
+.full-width {
+  grid-column: 1 / -1;
+}
