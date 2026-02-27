@@ -600,8 +600,6 @@ export default function DriverReport() {
         <div className="chart-card">
           {Object.entries(
             chartData.reduce((acc, item) => {
-              console.log("Grouping item:", item.name, item.date); // Debug log
-              if (!item.date) return acc;
               const d = new Date(item.date.replace(" ", "T"));
 
               const key = `${d.getFullYear()}-${d.getMonth()}`;
@@ -687,7 +685,17 @@ export default function DriverReport() {
 
                         {/* Booking ID */}
                         <div style={{ fontWeight: 600 }}>{b.name}</div>
-
+                        {/* Center: Route */}
+                        <div
+                          style={{
+                            flex: 1,
+                            textAlign: "center",
+                            color: "#4f46e5",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {b.route}
+                        </div>
                         {/* KM */}
                         <div style={{ marginLeft: "auto", fontWeight: 700 }}>
                           {b.km} km
