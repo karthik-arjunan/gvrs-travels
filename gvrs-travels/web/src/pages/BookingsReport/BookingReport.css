@@ -52,3 +52,40 @@
 .full-width {
   grid-column: 1 / -1;
 }
+
+/* Premium Export Button */
+/* Premium Export Button - Excel Style */
+.export-wrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.25);
+}
+
+.export-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(22, 163, 74, 0.35);
+}
+
+.export-wrapper:active {
+  transform: scale(0.97);
+}
+
+.export-icon {
+  font-size: 16px;
+}
+
+.export-text {
+  letter-spacing: 0.3px;
+}

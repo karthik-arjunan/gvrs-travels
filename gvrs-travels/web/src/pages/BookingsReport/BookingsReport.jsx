@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaPlus } from "react-icons/fa6";
+import { FaFileExport } from "react-icons/fa";
 import "./BookingReport.css";
 import {
   BOOKING_API,
@@ -9,6 +10,8 @@ import {
 } from "../../config/api";
 import Select, { components } from "react-select";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
   BarChart,
   Bar,
@@ -481,6 +484,7 @@ export default function BookingReport() {
       cursor: "pointer",
     }),
   };
+
   useEffect(() => {
     const total =
       Number(bookingAmount || 0) -
@@ -491,11 +495,49 @@ export default function BookingReport() {
     setAmount(total >= 0 ? total : 0);
   }, [bookingAmount, driverSalary, bata, dieselAmount]);
 
+  const handleExport = () => {
+    if (!chartData.length) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const exportRows = [];
+
+    chartData.forEach((monthGroup) => {
+      monthGroup.bookings.forEach((b) => {
+        exportRows.push({
+          Month: monthGroup.month,
+          "Booking ID": b.id,
+          "Trip Amount": b.amount,
+          "Driver Salary": b.salary,
+          Bata: b.bata,
+          "Diesel Amount": b.diesel,
+          Balance: b.balance,
+        });
+      });
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Booking Report");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "Booking_Report.xlsx");
+  };
   return (
     <div className="report-page">
       {/* HEADER */}
       <div className="report-header">
-        <h1 className="report-title">Trip Reports</h1>
+        <h1 className="report-title">Bookings Reports</h1>
 
         <button className="add-btn" onClick={() => setShowModal(true)}>
           <FaPlus className="add-icon" />
@@ -650,7 +692,14 @@ export default function BookingReport() {
       )}
       {chartData.length > 0 && (
         <div className="chart-card">
-          <div style={{ display: "flex", gap: 22, marginBottom: 14 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 22,
+              marginBottom: 14,
+              alignItems: "center",
+            }}
+          >
             {/* Trip Amount */}
             <div
               onClick={() => toggleKey("amount")}
@@ -744,6 +793,12 @@ export default function BookingReport() {
                 }}
               />
               Diesel Amount
+            </div>
+            <div style={{ marginLeft: "auto" }}>
+              <div className="export-wrapper" onClick={handleExport}>
+                <FaFileExport className="export-icon" />
+                <span className="export-text">Export</span>
+              </div>
             </div>
           </div>
 

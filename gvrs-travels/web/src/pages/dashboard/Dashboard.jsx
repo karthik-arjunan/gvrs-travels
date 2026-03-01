@@ -3,7 +3,7 @@ import { FaCar, FaRupeeSign, FaCalendarCheck } from "react-icons/fa";
 import "./dashboard.css";
 import RevenueChart from "../../components/RevenueChart";
 import BookingCalendar from "../../components/BookingCalendar";
-import { BOOKING_API, VEHICLE_API } from "../../config/api";
+import { BOOKING_API, VEHICLE_API, TRIP_FINANCE_API } from "../../config/api";
 import { useCountUp } from "../BookingsList/BookingsList";
 import KpiMiniBar from "../../components/KpiMiniBar";
 import VehicleUsageMiniBar from "../../components/VehicleUsageMiniBar";
@@ -23,24 +23,28 @@ const Dashboard = () => {
   const [highlighted, setHighlighted] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [growth, setGrowth] = useState(0);
+  const [hoveredMonth, setHoveredMonth] = useState(null);
+  const [financeData, setFinanceData] = useState([]);
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const [bookingRes, vehicleRes] = await Promise.all([
+        const [bookingRes, vehicleRes, financeRes] = await Promise.all([
           fetch(BOOKING_API),
           fetch(VEHICLE_API),
+          fetch(TRIP_FINANCE_API),
         ]);
 
         const bookingData = await bookingRes.json();
         const vehicles = await vehicleRes.json();
-
+        const financeData = await financeRes.json();
+        setFinanceData(financeData);
         // ⭐ SUM AMOUNT
-        const sum = bookingData
-          .filter((b) =>
-            ["confirmed", "completed", "cancelled"].includes(b.status),
-          )
-          .reduce((acc, b) => acc + parseFloat(b.amount || 0), 0);
+        const currentYear = new Date().getFullYear();
+
+        const sum = financeData
+          .filter((f) => new Date(f.created_at).getFullYear() === currentYear)
+          .reduce((acc, f) => acc + parseFloat(f.balance || 0), 0);
 
         setTotalEarnings(sum);
         setBookings(bookingData);
@@ -303,7 +307,7 @@ const Dashboard = () => {
       <div className="dashboard-grid">
         <div className="card large-card">
           <h3>Revenue Overview</h3>
-          <RevenueChart />
+          <RevenueChart onMonthHover={setHoveredMonth} />
 
           {/* FULL CALENDAR */}
           <div className="card calendar-card">

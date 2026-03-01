@@ -1,13 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
 import { DRIVER_REPORT_API, DRIVER_REPORT_DETAIL_API } from "../../config/api";
 
 import Select, { components } from "react-select";
