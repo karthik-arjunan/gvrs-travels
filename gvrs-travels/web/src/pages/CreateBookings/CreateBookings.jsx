@@ -169,40 +169,26 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
       return `${day}/${month}/${year} ${time}`;
     };
 
-    const message = `
-      ✨ *GVRS TRAVELS — Trip Confirmation*
+    const message = `✨ *GVRS TRAVELS — Trip Confirmation*
+━━━━━━━━━━━━━━━━━
+🆔 *Booking ID:* ${booking.booking_id}
+👤 *Customer Name:* ${booking.customer_name}
 
-      ━━━━━━━━━━━━━━━━━━━
+🚗 *Vehicle & Driver*
+Vehicle No: *${booking.vehicle_number || "-"}*
+Driver: *${booking.driver_name || "-"}* | 📞 ${booking.driver_phone || "-"}
 
-      🆔 *Booking ID*
-      ${booking.booking_id}
+📍 *Route:*
+${booking.pickup_location} ➜ ${booking.drop_location}
 
-      👤 *Customer Name*
-      ${booking.customer_name}
+🗓 *Pickup Date & Time:*
+${formatPickup(booking.pickup_datetime)}
 
-      🚘 *Vehicle Number *
-      ${booking.vehicle_number || "-"}
-
-      👨‍✈️ *Driver Name*
-      ${booking.driver_name || "-"}
-
-      📞 *Driver Contact*
-      ${booking.driver_phone || "-"}
-
-      📍 *Route*
-      ${booking.pickup_location} ➜ ${booking.drop_location}
-
-      🗓 *Pickup Date & Time*
-      ${formatPickup(booking.pickup_datetime)}
-
-      💰 *Fare*
-      ₹ ${booking.amount}
-
-      ━━━━━━━━━━━━━━━━━━━
-
-      📞 Need help? Contact us anytime  
-      🙏 Thank you for choosing *GVRS Travels*
-      `;
+💰 *Fare:* ₹ *${booking.amount}*
+━━━━━━━━━━━━━━━━━
+📞 Support - +91 9790255173
+🙏 Thank you for choosing us
+*GVRS Travels*`;
 
     const cleanPhone = phone.replace(/\D/g, "");
     const url = `https://api.whatsapp.com/send/?phone=91${cleanPhone}&text=${encodeURIComponent(message)}`;
