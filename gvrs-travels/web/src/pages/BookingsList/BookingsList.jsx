@@ -3,6 +3,9 @@ import "./BookingsList.css";
 import Bookings from "../CreateBookings/CreateBookings";
 import { toast } from "react-toastify";
 import { BOOKING_API } from "../../config/api";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaFileExport } from "react-icons/fa";
 import {
   FaPlaneDeparture,
   FaCheckCircle,
@@ -209,14 +212,55 @@ ${formatPickup(booking.pickup_datetime)}
     return pages;
   };
 
+  const handleExport = () => {
+    if (!bookings || bookings.length === 0) {
+      toast.error("No bookings to export");
+      return;
+    }
+
+    const exportData = bookings.map((b) => ({
+      "Booking ID": b.booking_id,
+      "Pickup Location": b.pickup_location,
+      "Drop Location": b.drop_location,
+      "Vehicle Type": b.vehicle_type,
+      "Vehicle Number": b.vehicle_number,
+      Time: b.pickup_datetime,
+      Amount: b.amount,
+      Status: b.status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const file = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(file, "Bookings_Report.xlsx");
+  };
+
   return (
     <div className="booking-page">
       {/* HEADER */}
       <div className="booking-header-row">
         <h1 className="page-title">My Bookings</h1>
-        <button className="add-booking-btn" onClick={openCreate}>
-          <FaPlus /> Add Booking
-        </button>
+
+        <div className="header-actions">
+          <div className="export-wrapper" onClick={handleExport}>
+            <FaFileExport className="export-icon" />
+            <span className="export-text">Export</span>
+          </div>
+
+          <button className="add-booking-btn" onClick={openCreate}>
+            <FaPlus /> Add Booking
+          </button>
+        </div>
       </div>
       {loading && <LogoLoader />}
       {/* SUMMARY */}

@@ -587,6 +587,13 @@ export default function DriverReport() {
       )}
 
       {/* ================= CHART ================= */}
+      {selectedDriver && chartData.length === 0 && (
+        <div className="no-data-card">
+          <div className="no-data-icon">📊</div>
+          <h3>No details available</h3>
+          <p>This driver has no performance records yet.</p>
+        </div>
+      )}
       {chartData.length > 0 && (
         <div className="chart-card">
           {Object.entries(

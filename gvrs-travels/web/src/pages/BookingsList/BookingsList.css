@@ -445,6 +445,12 @@
   align-items: center;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* 🔥 Adjust space here */
+}
+
 /* ADD BOOKING BUTTON */
 .add-booking-btn {
   display: flex;

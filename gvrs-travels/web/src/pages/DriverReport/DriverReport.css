@@ -97,3 +97,30 @@
   font-weight: 600;
   color: #374151;
 }
+
+.no-data-card {
+  margin-top: 40px;
+  padding: 50px 20px;
+  text-align: center;
+  border-radius: 16px;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.no-data-icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.no-data-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.no-data-card p {
+  font-size: 14px;
+  color: #6b7280;
+}
