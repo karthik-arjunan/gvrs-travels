@@ -241,6 +241,12 @@ button.btn.cancel:hover {
   margin-bottom: 12px;
 }
 
+@media (min-width: 1400px) {
+  html {
+    font-size: 15px;
+  }
+}
+
 .route {
   font-weight: 700;
   font-size: 18px;
