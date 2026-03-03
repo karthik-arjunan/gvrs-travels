@@ -137,7 +137,7 @@ const BookingsList = () => {
   const sendWhatsAppToDriver = (driverPhone, booking) => {
     if (!driverPhone) return;
 
-    const message = `✨ *GVRS TRAVELS — Trip Confirmation*
+    const message = `✨ *GVRS TRAVELS — Trip Confirmed*
 ━━━━━━━━━━━━━━━━━
 🆔 *Booking ID:* ${booking.booking_id}
 👤 *Customer:* ${booking.customer_name}
@@ -150,8 +150,8 @@ ${booking.pickup_location} ➜ ${booking.drop_location}
 ${formatPickup(booking.pickup_datetime)}
 ━━━━━━━━━━━━━━━━━
 ⏰ Please be ready and reach pickup on time.
-📞 Support - +91 9790255173
-*GVRS Travels*`;
+*GVRS Travels-Team *
+📞 Support - +91 9790255173`;
     const cleanPhone = driverPhone.replace(/\D/g, "");
     const url = `https://api.whatsapp.com/send/?phone=91${cleanPhone}&text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
