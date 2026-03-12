@@ -231,7 +231,7 @@ ${formatPickup(booking.pickup_datetime)}
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings List");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -242,7 +242,7 @@ ${formatPickup(booking.pickup_datetime)}
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    saveAs(file, "Bookings_Report.xlsx");
+    saveAs(file, "Bookings_List.xlsx");
   };
 
   return (
@@ -358,7 +358,8 @@ ${formatPickup(booking.pickup_datetime)}
 
                 <div className="booking-actions">
                   <span className="action-icons">
-                    {["confirmed"].includes(booking.status) && (
+                    {/* WhatsApp only for confirmed */}
+                    {booking.status === "confirmed" && (
                       <button
                         className="whatsapp-pill"
                         onClick={() =>
@@ -369,12 +370,20 @@ ${formatPickup(booking.pickup_datetime)}
                       </button>
                     )}
 
+                    {/* Edit for all statuses */}
                     <button
                       className="icon-btn edit"
                       onClick={() => openEdit(booking)}
                     >
                       <MdEdit />
                     </button>
+
+                    {/* <button
+                      className="icon-btn edit"
+                      onClick={() => openEdit(booking)}
+                    >
+                      <MdEdit />
+                    </button> */}
 
                     {/* <button className="icon-btn delete">
                       <FaTrash />

@@ -671,10 +671,10 @@
   box-shadow: noneŻ;
 }
 
-.bookings-card.completed .icon-btn.edit,
+/* .bookings-card.completed .icon-btn.edit,
 .bookings-card.cancelled .icon-btn.edit {
   display: none;
-}
+} */
 
 .icon-btn.delete {
   background: #ffe4e6;

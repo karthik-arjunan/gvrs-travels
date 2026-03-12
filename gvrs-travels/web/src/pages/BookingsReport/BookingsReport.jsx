@@ -513,6 +513,7 @@ export default function BookingReport() {
           Bata: b.bata,
           "Diesel Amount": b.diesel,
           Balance: b.balance,
+          Date: new Date(b.date).toLocaleDateString("en-GB"),
         });
       });
     });
@@ -520,7 +521,7 @@ export default function BookingReport() {
     const worksheet = XLSX.utils.json_to_sheet(exportRows);
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Booking Report");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings Report");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -690,7 +691,13 @@ export default function BookingReport() {
           </div>
         </div>
       )}
-      {chartData.length > 0 && (
+      {chartData.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">📭</div>
+          <h3>No booking reports found</h3>
+          <p>No completed booking reports available</p>
+        </div>
+      ) : (
         <div className="chart-card">
           <div
             style={{

@@ -7,6 +7,9 @@ import { FaPlus } from "react-icons/fa6";
 
 import "./DriverReport.css";
 import { DRIVER_API, BOOKING_API } from "../../config/api";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaFileExport } from "react-icons/fa";
 
 export default function DriverReport() {
   const [showModal, setShowModal] = useState(false);
@@ -414,6 +417,36 @@ export default function DriverReport() {
     }));
   };
 
+  const handleExport = () => {
+    if (!chartData.length) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const exportData = chartData.map((b) => ({
+      "Booking ID": b.name,
+      Route: b.route,
+      "Driven KM": b.km,
+      Date: new Date(b.date).toLocaleDateString("en-GB"), // ⭐ date only
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Driver Report");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "Driver_Report.xlsx");
+  };
+
   return (
     <div className="report-container">
       {/* HEADER */}
@@ -432,7 +465,8 @@ export default function DriverReport() {
           </button>
         </div>
       </div>
-      <div className="form-group premium-autocomplete driver-select-small">
+
+      {/* <div className="form-group premium-autocomplete driver-select-small">
         <label>
           Driver Name <span className="required">*</span>
         </label>
@@ -458,6 +492,43 @@ export default function DriverReport() {
             SingleValue: DriverSingleValue,
           }}
         />
+      </div> */}
+      <div className="driver-filter-row">
+        {/* LEFT — Driver Select */}
+        <div className="form-group premium-autocomplete driver-select-small">
+          <label>
+            Driver Name <span className="required">*</span>
+          </label>
+
+          <Select
+            className="premium-select"
+            options={driverOptions}
+            value={driverOptions.find((opt) => opt.value === selectedDriver)}
+            onChange={(opt) => setSelectedDriver(opt.value)}
+            styles={premiumSelectStyles}
+            isSearchable
+            filterOption={(option, inputValue) => {
+              const search = inputValue.toLowerCase();
+
+              return (
+                option.label.toLowerCase().includes(search) ||
+                option.data.phone.includes(search)
+              );
+            }}
+            menuPortalTarget={document.body}
+            menuPosition="fixed"
+            components={{
+              Option: DriverOption,
+              SingleValue: DriverSingleValue,
+            }}
+          />
+        </div>
+
+        {/* RIGHT — Export Button */}
+        <div className="export-wrapper" onClick={handleExport}>
+          <FaFileExport className="export-icon" />
+          <span className="export-text">Export</span>
+        </div>
       </div>
       {/* ================= MODAL ================= */}
       {showModal && (
@@ -587,6 +658,14 @@ export default function DriverReport() {
       )}
 
       {/* ================= CHART ================= */}
+      {/* No driver selected */}
+      {!selectedDriver && (
+        <div className="no-data-card">
+          <div className="no-data-icon">📭</div>
+          <h3>Select some driver</h3>
+          <p>Please choose a driver to view performance report.</p>
+        </div>
+      )}
       {selectedDriver && chartData.length === 0 && (
         <div className="no-data-card">
           <div className="no-data-icon">📊</div>

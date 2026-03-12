@@ -700,17 +700,18 @@ ${formatPickup(booking.pickup_datetime)}
               <input
                 type="datetime-local"
                 value={pickupDateTime}
-                min={getMinDateTime()}
-                onChange={(e) => {
-                  const value = e.target.value;
+                // min={getMinDateTime()}
+                // onChange={(e) => {
+                //   const value = e.target.value;
 
-                  if (isPastDateTime(value)) {
-                    toast.error("Please select future time");
-                    return;
-                  }
+                //   if (isPastDateTime(value)) {
+                //     toast.error("Please select future time");
+                //     return;
+                //   }
 
-                  setPickupDateTime(value);
-                }}
+                //   setPickupDateTime(value);
+                // }}
+                onChange={(e) => setPickupDateTime(e.target.value)}
               />
             </div>
 
@@ -719,7 +720,7 @@ ${formatPickup(booking.pickup_datetime)}
               <input
                 type="date"
                 value={dropDate}
-                min={new Date().toISOString().split("T")[0]}
+                // min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setDropDate(e.target.value)}
               />
             </div>
