@@ -4,6 +4,8 @@ import { FaCar, FaShuttleVan } from "react-icons/fa";
 import { DRIVER_API, VEHICLE_API, BOOKING_API } from "../../config/api";
 import Select, { components } from "react-select";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
   const whatsappTabRef = useRef(null);
   const [vehicleType, setVehicleType] = useState("");
@@ -14,8 +16,8 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
   const [driverName, setDriverName] = useState("");
   const [driverPhone, setDriverPhone] = useState("");
   const [RegisterNumber, setRegisterNumber] = useState("");
-  const [pickupDateTime, setPickupDateTime] = useState("");
-  const [dropDate, setDropDate] = useState("");
+  const [pickupDateTime, setPickupDateTime] = useState(null);
+  const [dropDate, setDropDate] = useState(null);
   const [amount, setAmount] = useState("");
 
   const [drivers, setDrivers] = useState([]);
@@ -137,8 +139,11 @@ const Bookings = ({ onClose, editingBooking, refreshBookings }) => {
           vehicles.filter((v) => v.vehicle_type === vehicleObj.vehicle_type),
         );
       }
-      setPickupDateTime(toDateTimeLocal(editingBooking.pickup_datetime));
-      setDropDate(editingBooking.drop_date);
+      // setPickupDateTime(toDateTimeLocal(editingBooking.pickup_datetime));
+      setPickupDateTime(new Date(editingBooking.pickup_datetime));
+      setDropDate(
+        editingBooking.drop_date ? new Date(editingBooking.drop_date) : null,
+      );
       setAmount(editingBooking.amount);
       setOriginalStatus(editingBooking.status);
     }
@@ -209,8 +214,10 @@ ${formatPickup(booking.pickup_datetime)}
       drop_location: drop,
       driver: driverId,
       vehicle: vehicleId,
-      pickup_datetime: pickupDateTime,
-      drop_date: dropDate,
+      pickup_datetime: pickupDateTime
+        ? pickupDateTime.toISOString().slice(0, 19)
+        : null,
+      drop_date: dropDate ? dropDate.toISOString().split("T")[0] : null,
       amount: amount,
       status: status,
     };
@@ -697,7 +704,7 @@ ${formatPickup(booking.pickup_datetime)}
               <label>
                 Pickup Date & Time <span className="required">*</span>
               </label>
-              <input
+              {/* <input
                 type="datetime-local"
                 value={pickupDateTime}
                 // min={getMinDateTime()}
@@ -712,16 +719,26 @@ ${formatPickup(booking.pickup_datetime)}
                 //   setPickupDateTime(value);
                 // }}
                 onChange={(e) => setPickupDateTime(e.target.value)}
+              /> */}
+              <DatePicker
+                selected={pickupDateTime}
+                onChange={(date) => setPickupDateTime(date)}
+                showTimeSelect
+                timeIntervals={15}
+                dateFormat="dd/MM/yyyy h:mm aa"
+                placeholderText="Select date & time"
+                className="custom-datepicker"
               />
             </div>
 
             <div className="form-group">
               <label>Drop Date</label>
-              <input
-                type="date"
-                value={dropDate}
-                // min={new Date().toISOString().split("T")[0]}
-                onChange={(e) => setDropDate(e.target.value)}
+              <DatePicker
+                selected={dropDate}
+                onChange={(date) => setDropDate(date)}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Select drop date"
+                className="custom-datepicker"
               />
             </div>
 
